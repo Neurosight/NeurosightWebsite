@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neurosight — Faster. Fairer. More accurate.</title>
+
+<meta name="ext-resource-dependency" content="assets/logo-dark.png" data-resource-id="logoDark" />
+
+<template id="__bundler_thumbnail" data-bg-color="#000000">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <!-- 3 concentric rings + signal lines — constellation motif -->
+    <circle cx="600" cy="400" r="220" fill="none" stroke="#F1C40F" stroke-width="2" stroke-dasharray="5 5" opacity="0.35"/>
+    <circle cx="600" cy="400" r="140" fill="none" stroke="#7ED6E8" stroke-width="2" opacity="0.4"/>
+    <circle cx="600" cy="400" r="70" fill="none" stroke="#C99CE0" stroke-width="2" opacity="0.5"/>
+    <line x1="600" y1="400" x2="760" y2="300" stroke="#7ED6E8" stroke-width="3" opacity="0.6"/>
+    <line x1="600" y1="400" x2="460" y2="320" stroke="#C99CE0" stroke-width="3" opacity="0.6"/>
+    <line x1="600" y1="400" x2="520" y2="540" stroke="#F1C40F" stroke-width="3" opacity="0.6"/>
+    <circle cx="600" cy="400" r="10" fill="#F1C40F"/>
+    <circle cx="760" cy="300" r="7" fill="#7ED6E8"/>
+    <circle cx="460" cy="320" r="7" fill="#C99CE0"/>
+    <circle cx="520" cy="540" r="7" fill="#F1C40F"/>
+    <circle cx="800" cy="480" r="5" fill="#E84A5F"/>
+    <circle cx="420" cy="500" r="5" fill="#7ED6E8"/>
+  </svg>
+</template>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ns-yellow: oklch(0.92 0.18 98);
+    --ns-cyan: oklch(0.82 0.18 200);
+    --ns-purple: oklch(0.78 0.20 320);
+    --ns-red: oklch(0.72 0.26 8);
+    --ns-white: oklch(0.97 0.008 95);
+    --ns-bg: oklch(0.04 0.01 280);
+    --ns-display: 'Space Grotesk', system-ui, sans-serif;
+    --ns-body: 'Inter', system-ui, sans-serif;
+    --ns-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #000;
+    color: var(--ns-white);
+    font-family: var(--ns-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* content above aurora */
+  #root { position: relative; z-index: 1; }
+  /* aurora layer */
+  .ns-aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  /* subtle film-grain */
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.95 0 0 0 0 0.95 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    pointer-events: none; z-index: 200; opacity: 0.55; mix-blend-mode: screen;
+  }
+  .ns-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    /* Always preserve a real gutter on both edges — never flush to viewport */
+    padding-left: clamp(32px, 5vw, 72px);
+    padding-right: clamp(32px, 5vw, 72px);
+  }
+  a { color: inherit; }
+  ::selection { background: var(--ns-yellow); color: #000; }
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: oklch(0.08 0.01 280); }
+  ::-webkit-scrollbar-thumb { background: oklch(0.2 0.01 280); }
+  ::-webkit-scrollbar-thumb:hover { background: oklch(0.3 0.01 280); }
+
+  @keyframes ns-caret { 0%, 100% { opacity: 0.85; } 50% { opacity: 0.1; } }
+  @keyframes ns-caret-fade { to { opacity: 0; } }
+  @keyframes ns-pulse-bold { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(3); opacity: 0; } }
+  @keyframes ns-rainbow { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+  @keyframes ns-marquee { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+  @keyframes ns-marquee-rev { from { transform: translateX(-33.333%); } to { transform: translateX(0); } }
+  @keyframes ns-flash { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  html { scroll-behavior: smooth; }
+
+  /* responsive tablet/small-desktop */
+  @media (max-width: 860px) {
+    .ns-hero-grid { grid-template-columns: 1fr !important; }
+    .ns-hero-visual { aspect-ratio: 16 / 10 !important; max-height: 420px !important; }
+    .ns-two-col { grid-template-columns: 1fr !important; }
+    .ns-results-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+  @media (max-width: 560px) {
+    .ns-results-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* Tweaks panel */
+  .ns-tweaks-panel {
+    position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+    width: 300px; padding: 18px;
+    background: oklch(0.08 0.01 280 / 0.95); backdrop-filter: blur(14px);
+    border: 1px solid oklch(0.85 0.01 95 / 0.18);
+    font-family: var(--ns-mono); font-size: 11px; color: var(--ns-white);
+    display: none;
+  }
+  .ns-tweaks-panel.open { display: block; }
+  .ns-tweaks-panel h4 { margin: 0 0 14px; font-size: 10px; letter-spacing: 2; color: var(--ns-yellow); font-weight: 700; }
+  .ns-tweaks-panel label { display: block; margin-bottom: 14px; }
+  .ns-tweaks-panel .ns-label { display: block; font-size: 9px; letter-spacing: 1.5px; color: oklch(0.92 0.01 95 / 0.7); margin-bottom: 6px; text-transform: uppercase; }
+  .ns-tweaks-panel input[type=text], .ns-tweaks-panel select {
+    width: 100%; padding: 8px 10px; background: #000;
+    border: 1px solid oklch(0.85 0.01 95 / 0.2);
+    color: var(--ns-white); font-family: inherit; font-size: 11px; outline: none;
+  }
+  .ns-tweaks-panel .ns-swatch-row { display: flex; gap: 6px; }
+  .ns-tweaks-panel .ns-swatch {
+    flex: 1; height: 28px; cursor: pointer; border: 2px solid transparent; outline: 1px solid oklch(0.85 0.01 95 / 0.2);
+  }
+  .ns-tweaks-panel .ns-swatch.active { border-color: var(--ns-white); }
+  .ns-tweaks-panel .ns-select-row { display: flex; gap: 6px; }
+  .ns-tweaks-panel .ns-pill {
+    flex: 1; padding: 7px 4px; text-align: center; cursor: pointer;
+    border: 1px solid oklch(0.85 0.01 95 / 0.22); font-size: 10px; letter-spacing: 1;
+    background: #000; color: var(--ns-white);
+  }
+  .ns-tweaks-panel .ns-pill.active { background: var(--ns-yellow); color: #000; border-color: var(--ns-yellow); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+  // Resources — populated with blob URLs when bundled standalone;
+  // fallback to relative paths for dev
+  window.__resources = window.__resources || { logoDark: 'assets/logo-dark.png' };
+
+  // Default tweaks
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "accent": "yellow",
+    "heroEyebrow": "NEXT-GEN PRE-HIRE ASSESSMENT",
+    "ctaLabel": "BOOK A DEMO",
+    "navStyle": "standard",
+    "clients": ["Grant Thornton", "Virgin Media O2", "Cognizant", "Worldpay", "NHS", "Sellafield"]
+  }/*EDITMODE-END*/;
+  window.__nsTweaks = { ...TWEAK_DEFAULTS };
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/animations.jsx"></script>
+<script type="text/babel" src="components/aurora.jsx"></script>
+<script type="text/babel" src="components/hero.jsx"></script>
+<script type="text/babel" src="components/middle.jsx"></script>
+<script type="text/babel" src="components/bottom.jsx"></script>
+
+<script type="text/babel">
+  const App = () => {
+    return (
+      <>
+        <AuroraBg />
+        <TopNav />
+        <Hero />
+        <Problem />
+        <Solution />
+        <Diversity />
+        <Compare />
+        <Results />
+        <CandidateExp />
+        <HowItWorks />
+        <Contact />
+        <Footer />
+      </>
+    );
+  };
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<!-- Tweaks panel -->
+<div class="ns-tweaks-panel" id="tweaks-panel">
+  <h4>» TWEAKS</h4>
+
+  <label>
+    <span class="ns-label">Accent color</span>
+    <div class="ns-swatch-row" id="tw-accent">
+      <div class="ns-swatch" data-val="yellow" style="background: oklch(0.92 0.18 98)"></div>
+      <div class="ns-swatch" data-val="cyan" style="background: oklch(0.82 0.18 200)"></div>
+      <div class="ns-swatch" data-val="purple" style="background: oklch(0.78 0.20 320)"></div>
+      <div class="ns-swatch" data-val="magenta" style="background: oklch(0.78 0.26 8)"></div>
+    </div>
+  </label>
+
+  <label>
+    <span class="ns-label">Hero eyebrow</span>
+    <input type="text" id="tw-eyebrow" />
+  </label>
+
+  <label>
+    <span class="ns-label">CTA label</span>
+    <input type="text" id="tw-cta" />
+  </label>
+
+  <label>
+    <span class="ns-label">Navigation style</span>
+    <div class="ns-select-row" id="tw-navstyle">
+      <div class="ns-pill" data-val="standard">STANDARD</div>
+      <div class="ns-pill" data-val="minimal">MINIMAL</div>
+    </div>
+  </label>
+</div>
+
+<script>
+(function () {
+  const panel = document.getElementById('tweaks-panel');
+  const root = window.__nsTweaks;
+
+  function sync() {
+    document.querySelectorAll('#tw-accent .ns-swatch').forEach(el => el.classList.toggle('active', el.dataset.val === root.accent));
+    document.querySelectorAll('#tw-navstyle .ns-pill').forEach(el => el.classList.toggle('active', el.dataset.val === root.navStyle));
+    document.getElementById('tw-eyebrow').value = root.heroEyebrow || '';
+    document.getElementById('tw-cta').value = root.ctaLabel || '';
+  }
+
+  function apply(edits) {
+    Object.assign(root, edits);
+    window.dispatchEvent(new CustomEvent('__ns_tweaks', { detail: root }));
+    sync();
+    try {
+      window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    } catch (e) {}
+  }
+
+  document.querySelectorAll('#tw-accent .ns-swatch').forEach(el => {
+    el.addEventListener('click', () => apply({ accent: el.dataset.val }));
+  });
+  document.querySelectorAll('#tw-navstyle .ns-pill').forEach(el => {
+    el.addEventListener('click', () => apply({ navStyle: el.dataset.val }));
+  });
+  document.getElementById('tw-eyebrow').addEventListener('input', (e) => apply({ heroEyebrow: e.target.value }));
+  document.getElementById('tw-cta').addEventListener('input', (e) => apply({ ctaLabel: e.target.value }));
+
+  // Host protocol
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === '__activate_edit_mode') panel.classList.add('open');
+    if (d.type === '__deactivate_edit_mode') panel.classList.remove('open');
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
+
+  sync();
+})();
+</script>
+</body>
+</html>

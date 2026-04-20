@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Neurosight — mobile site</title>
+<meta name="ext-resource-dependency" content="./logo-dark.png" data-resource-id="logoDark" />
+<template id="__bundler_thumbnail" data-bg-color="#000000">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect x="400" y="200" width="400" height="400" fill="none" stroke="#F1C40F" stroke-width="32"/>
+    <circle cx="540" cy="380" r="22" fill="#F1C40F"/>
+    <circle cx="660" cy="340" r="22" fill="#F1C40F"/>
+    <circle cx="640" cy="460" r="22" fill="#F1C40F"/>
+    <line x1="540" y1="380" x2="660" y2="340" stroke="#F1C40F" stroke-width="10"/>
+    <line x1="660" y1="340" x2="640" y2="460" stroke="#F1C40F" stroke-width="10"/>
+    <line x1="540" y1="380" x2="640" y2="460" stroke="#F1C40F" stroke-width="10"/>
+  </svg>
+</template>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ns-display: 'Space Grotesk', system-ui, sans-serif;
+    --ns-body: 'Inter', system-ui, sans-serif;
+    --ns-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --ns-white: oklch(0.97 0.008 95);
+    --ns-yellow: oklch(0.92 0.18 98);
+    --ns-cyan: oklch(0.82 0.18 200);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #111; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    font-family: var(--ns-body);
+    -webkit-font-smoothing: antialiased;
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    padding: 0;
+  }
+  /* Mobile: let the site fill the real viewport */
+  body.ns-mobile { display: block; }
+  body.ns-mobile::before { display: none; }
+  body.ns-mobile #root, body.ns-mobile .stage { width: 100%; height: 100dvh; transform: none !important; }
+
+  /* Mobile density scaling — tune content to match the preview's density
+     on real phones. Android Chrome supports `zoom`, which scales both
+     layout and px sizes uniformly. */
+  @media (max-width: 420px) {
+    body.ns-mobile .phone-scroll { zoom: 0.88; }
+  }
+
+  /* Page background scaffold — subtle grid around the device */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 30%, oklch(0.25 0.05 280 / 0.5), transparent 60%),
+      linear-gradient(#0a0a0d, #0a0a0d);
+    z-index: -1;
+  }
+
+  .stage {
+    position: relative;
+    transform-origin: center center;
+  }
+
+  /* Scrollable inside phone */
+  .phone-scroll::-webkit-scrollbar { width: 0; }
+
+  /* Fine grain for the neon feel */
+  .grain {
+    position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    opacity: 0.04; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.8'/></svg>");
+  }
+
+  /* Animation keyframes */
+  @keyframes ns-caret {
+    0%, 50% { opacity: 0.85; } 50.01%, 100% { opacity: 0; }
+  }
+  @keyframes ns-caret-fade {
+    0% { opacity: 0.85; } 100% { opacity: 0; }
+  }
+  @keyframes ns-pulse {
+    0%   { transform: scale(1);   opacity: 0.9; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  @keyframes ns-pulse-bold {
+    0%   { transform: scale(1);   opacity: 1; }
+    100% { transform: scale(3.6); opacity: 0; }
+  }
+  @keyframes ns-rainbow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  @keyframes ns-ripple {
+    0%   { width: 0; height: 0; opacity: 0.95; }
+    100% { width: 270px; height: 270px; opacity: 0; }
+  }
+  @keyframes ns-num-pulse {
+    0%   { transform: scale(0.6); opacity: 0.9; border-width: 2px; }
+    60%  { opacity: 0.45; }
+    100% { transform: scale(4.2); opacity: 0; border-width: 1px; }
+  }
+  @keyframes ns-num-halo {
+    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    18%  { transform: translate(-50%, -50%) scale(1.3); opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(5.5); opacity: 0; }
+  }
+  @keyframes ns-cmp-halo {
+    0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    22%  { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; }
+  }
+  @keyframes ns-cmp-glow {
+    0%   {
+      text-shadow: 0 0 0 oklch(0.82 0.18 200 / 0);
+      color: oklch(0.82 0.18 200);
+    }
+    28%  {
+      text-shadow:
+        0 0 6px  oklch(0.82 0.18 200 / 0.95),
+        0 0 14px oklch(0.82 0.18 200 / 0.85),
+        0 0 28px oklch(0.82 0.18 200 / 0.55);
+      color: oklch(0.96 0.12 200);
+    }
+    100% {
+      text-shadow:
+        0 0 14px oklch(0.82 0.18 200 / 0),
+        0 0 38px oklch(0.82 0.18 200 / 0),
+        0 0 72px oklch(0.82 0.18 200 / 0);
+      color: oklch(0.82 0.18 200);
+    }
+  }
+  @keyframes ns-num-glow {
+    0%   {
+      text-shadow: 0 0 0 oklch(0.72 0.26 8 / 0);
+      color: oklch(0.72 0.26 8);
+    }
+    25%  {
+      text-shadow:
+        0 0 6px  oklch(0.72 0.26 8 / 0.95),
+        0 0 14px oklch(0.72 0.26 8 / 0.85),
+        0 0 28px oklch(0.72 0.26 8 / 0.55);
+      color: oklch(0.95 0.12 25);
+    }
+    100% {
+      text-shadow:
+        0 0 14px oklch(0.72 0.26 8 / 0),
+        0 0 38px oklch(0.72 0.26 8 / 0),
+        0 0 72px oklch(0.72 0.26 8 / 0);
+      color: oklch(0.72 0.26 8);
+    }
+  }
+  @keyframes ns-flash {
+    0%   { transform: translateX(-100%); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+  }
+  @keyframes ns-brand-fade {
+    0% { opacity: 0; transform: translateY(-4px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ns-brand-rise {
+    0% { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+    60% { opacity: 1; filter: blur(0); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  @keyframes ns-brand-flash {
+    0% { opacity: 0.3; }
+    30% { opacity: 1; }
+    100% { opacity: 1; }
+  }
+  @keyframes ns-brand-progress {
+    0% { transform: scaleX(0); transform-origin: left; }
+    100% { transform: scaleX(1); transform-origin: left; }
+  }
+  @keyframes ns-marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes ns-marquee-rev {
+    0%   { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+  @keyframes ns-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+  .ns-marquee-track { padding-right: 10px; }
+  .paused .ns-marquee-track { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="root" class="stage"></div>
+
+<script>
+  // Detect mobile. If mobile: skip the phone frame entirely and let the site fill the screen.
+  // Otherwise: fit the phone-shell to the viewport.
+  (function() {
+    const isMobile = window.matchMedia('(max-width: 820px)').matches || ('ontouchstart' in window && Math.min(window.innerWidth, window.innerHeight) < 820);
+    window.__nsMobile = isMobile;
+    if (isMobile) { document.body.classList.add('ns-mobile'); return; }
+    const STAGE_W = 440, STAGE_H = 900;
+    const fit = () => {
+      const stage = document.querySelector('.stage');
+      if (!stage) return;
+      const s = Math.min(1, window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
+      stage.style.transform = `scale(${s})`;
+    };
+    window.addEventListener('resize', fit);
+    window.addEventListener('load', fit);
+    setTimeout(fit, 50);
+  })();
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="animations.jsx"></script>
+<script type="text/babel" src="site.jsx"></script>
+
+<script type="text/babel">
+// ─── Tweaks: editable defaults ────────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "clients": [
+    "Grant Thornton",
+    "Virgin Media O2",
+    "Cognizant",
+    "Worldpay",
+    "NHS",
+    "Sellafield",
+    "Amey",
+    "Autotrader",
+    "Forvis Mazars",
+    "Welsh Water",
+    "Fieldfisher",
+    "Merseyrail",
+    "Womble Bond Dickinson",
+    "DLA Piper",
+    "UK National Nuclear Laboratory",
+    "VWV"
+  ],
+  "heroEyebrow": "NEXT-GEN PRE-HIRE ASSESSMENT",
+  "ctaLabel": "BOOK A DEMO",
+  "accent": "yellow"
+}/*EDITMODE-END*/;
+
+// Broadcast to site
+function applyTweaks(t) {
+  window.__nsTweaks = { ...window.__nsTweaks, ...t };
+  window.dispatchEvent(new CustomEvent('__ns_tweaks', { detail: window.__nsTweaks }));
+}
+applyTweaks(TWEAK_DEFAULTS);
+
+// ─── Tweaks panel UI ──────────────────────────────────────
+const TweaksPanel = ({ visible, state, setState }) => {
+  if (!visible) return null;
+  const [newClient, setNewClient] = React.useState('');
+  const update = (patch) => {
+    const next = { ...state, ...patch };
+    setState(next);
+    applyTweaks(patch);
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*');
+  };
+  const addClient = () => {
+    const v = newClient.trim();
+    if (!v) return;
+    update({ clients: [...state.clients, v] });
+    setNewClient('');
+  };
+  const removeClient = (i) => {
+    const next = state.clients.slice();
+    next.splice(i, 1);
+    update({ clients: next });
+  };
+  return (
+    <div style={{
+      position: 'fixed', right: 20, bottom: 20, width: 320, maxHeight: '80vh',
+      background: 'oklch(0.1 0.02 280 / 0.95)', backdropFilter: 'blur(16px)',
+      border: '1px solid oklch(0.92 0.18 98 / 0.4)',
+      boxShadow: '0 0 40px oklch(0.92 0.18 98 / 0.2), 0 20px 40px rgba(0,0,0,0.4)',
+      color: 'oklch(0.97 0.008 95)', fontFamily: 'Inter, system-ui',
+      zIndex: 10000, overflow: 'auto',
+    }}>
+      <div style={{
+        padding: '14px 16px', borderBottom: '1px solid oklch(0.85 0.01 95 / 0.15)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        position: 'sticky', top: 0, background: 'oklch(0.1 0.02 280 / 0.95)', zIndex: 2,
+      }}>
+        <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: 2, color: 'oklch(0.92 0.18 98)' }}>
+          [ TWEAKS ]
+        </div>
+      </div>
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Eyebrow */}
+        <div>
+          <label style={lbl}>Hero eyebrow</label>
+          <input value={state.heroEyebrow} onChange={(e) => update({ heroEyebrow: e.target.value })} style={inp} />
+        </div>
+        {/* CTA */}
+        <div>
+          <label style={lbl}>Primary CTA label</label>
+          <input value={state.ctaLabel} onChange={(e) => update({ ctaLabel: e.target.value })} style={inp} />
+        </div>
+        {/* Accent */}
+        <div>
+          <label style={lbl}>Accent tint</label>
+          <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+            {[
+              ['magenta', 'oklch(0.72 0.28 8)'],
+              ['cyan', 'oklch(0.82 0.18 200)'],
+              ['purple', 'oklch(0.78 0.20 320)'],
+              ['yellow', 'oklch(0.92 0.18 98)'],
+            ].map(([key, c]) => (
+              <button key={key} onClick={() => update({ accent: key })} style={{
+                flex: 1, height: 28, border: state.accent === key ? '1.5px solid oklch(0.97 0.008 95)' : '1px solid oklch(0.85 0.01 95 / 0.2)',
+                background: c, cursor: 'pointer', borderRadius: 0,
+              }} title={key} />
+            ))}
+          </div>
+        </div>
+        {/* Clients */}
+        <div>
+          <label style={lbl}>Trusted-by clients ({state.clients.length})</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6, maxHeight: 220, overflow: 'auto' }}>
+            {state.clients.map((c, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input value={c} onChange={(e) => {
+                  const next = state.clients.slice();
+                  next[i] = e.target.value;
+                  update({ clients: next });
+                }} style={{ ...inp, flex: 1 }} />
+                <button onClick={() => removeClient(i)} style={rmBtn} title="remove">×</button>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+            <input placeholder="Add client…" value={newClient}
+              onChange={(e) => setNewClient(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') addClient(); }}
+              style={{ ...inp, flex: 1 }} />
+            <button onClick={addClient} style={addBtn}>+ ADD</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const lbl = {
+  fontFamily: 'JetBrains Mono, monospace', fontSize: 9, letterSpacing: 1.5,
+  color: 'oklch(0.85 0.01 95 / 0.6)', textTransform: 'uppercase', display: 'block',
+};
+const inp = {
+  width: '100%', padding: '8px 10px', marginTop: 6,
+  background: 'oklch(0.18 0.01 280 / 0.7)', border: '1px solid oklch(0.85 0.01 95 / 0.15)',
+  color: 'oklch(0.97 0.008 95)', fontFamily: 'Inter, system-ui', fontSize: 12,
+  outline: 'none', borderRadius: 0, boxSizing: 'border-box',
+};
+const rmBtn = {
+  width: 28, height: 28, flexShrink: 0,
+  background: 'transparent', border: '1px solid oklch(0.72 0.26 8 / 0.5)',
+  color: 'oklch(0.72 0.26 8)', cursor: 'pointer', fontSize: 16, lineHeight: 1,
+  fontFamily: 'system-ui', borderRadius: 0,
+};
+const addBtn = {
+  padding: '0 12px', height: 32,
+  background: 'oklch(0.92 0.18 98)', border: 'none', color: '#000',
+  fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: 1.5,
+  cursor: 'pointer', borderRadius: 0, fontWeight: 600,
+};
+
+// ─── Scroll hint — down-arrow cue on first load ─────────────
+const ScrollHint = ({ containerRef }) => {
+  const [show, setShow] = React.useState(false);
+  const dismissed = React.useRef(false);
+  React.useEffect(() => {
+    // appear after hero trusted-by marquee settles (~3.7s)
+    const t = setTimeout(() => {
+      if (!dismissed.current) setShow(true);
+    }, 5000);
+    return () => clearTimeout(t);
+  }, []);
+  React.useEffect(() => {
+    const el = containerRef?.current;
+    if (!el) return;
+    const onScroll = () => {
+      if (el.scrollTop > 10) {
+        dismissed.current = true;
+        setShow(false);
+        el.removeEventListener('scroll', onScroll);
+      }
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [containerRef]);
+  return (
+    <div aria-hidden style={{
+      position: 'absolute', left: 0, right: 0, bottom: 18,
+      display: 'flex', justifyContent: 'center', pointerEvents: 'none',
+      zIndex: 45,
+      opacity: show ? 1 : 0,
+      transition: 'opacity 600ms ease-out',
+    }}>
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+        animation: show ? 'ns-bob 1.4s ease-in-out infinite' : 'none',
+        fontFamily: 'JetBrains Mono, monospace',
+        fontSize: 11, letterSpacing: 2.5, fontWeight: 700,
+        color: 'oklch(0.92 0.18 98)',
+        textShadow: '0 0 10px oklch(0.92 0.18 98 / 0.7)',
+      }}>
+        <span>SCROLL</span>
+        <svg width="22" height="14" viewBox="0 0 22 14" fill="none" style={{
+          filter: 'drop-shadow(0 0 8px oklch(0.92 0.18 98 / 0.8))',
+        }}>
+          <path d="M1 1l10 10L21 1" stroke="oklch(0.92 0.18 98)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+// ─── App root ─────────────────────────────────────────────
+const App = () => {
+  const [editing, setEditing] = React.useState(false);
+  const [state, setState] = React.useState(TWEAK_DEFAULTS);
+  const scrollRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      if (!e.data || !e.data.type) return;
+      if (e.data.type === '__activate_edit_mode') setEditing(true);
+      else if (e.data.type === '__deactivate_edit_mode') setEditing(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  React.useLayoutEffect(() => {
+    window.__nsScrollRoot = scrollRef.current;
+  }, []);
+
+  const isMobile = typeof window !== 'undefined' && window.__nsMobile;
+
+  if (isMobile) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, background: '#000', overflow: 'hidden' }}>
+        <div ref={scrollRef} className="phone-scroll" style={{
+          position: 'absolute', inset: 0, background: '#000',
+          overflowY: 'auto', overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+        }}>
+          <NeurosightSite />
+        </div>
+        <ScrollHint containerRef={scrollRef} />
+        <TweaksPanel visible={editing} state={state} setState={setState} />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <IOSDevice dark width={402} height={874}>
+        <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+          <div ref={scrollRef} className="phone-scroll" style={{
+            height: '100%', background: '#000',
+            overflowY: 'auto', overflowX: 'hidden',
+            position: 'relative',
+          }}>
+            <NeurosightSite />
+          </div>
+          <ScrollHint containerRef={scrollRef} />
+        </div>
+      </IOSDevice>
+      <TweaksPanel visible={editing} state={state} setState={setState} />
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>
