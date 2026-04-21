@@ -20,7 +20,7 @@ const useTweaks = () => {
 // Reusable section header tag: [ LABEL ]
 const SectionTag = ({ n, label, color = 'var(--ns-cyan)' }) => (
   <div style={{
-    fontFamily: 'var(--ns-mono)', fontSize: 10, letterSpacing: 2.5,
+    fontFamily: 'var(--ns-mono)', fontSize: 12, letterSpacing: 2.5,
     color, marginBottom: 20, fontWeight: 700,
   }}>
     <span style={{ opacity: 0.5 }}>[</span> {label} <span style={{ opacity: 0.5 }}>]</span>
@@ -151,7 +151,7 @@ const Hero = () => {
 
     <div style={{ position: 'relative', zIndex: 2 }}>
       <div style={{
-        fontFamily: 'var(--ns-mono)', fontSize: 10, letterSpacing: 2.5,
+        fontFamily: 'var(--ns-mono)', fontSize: 12, letterSpacing: 2.5,
         color: 'var(--ns-cyan)', marginBottom: 22, fontWeight: 700,
       }}>
         {tw.heroEyebrow ? `[ ${tw.heroEyebrow} ]` : '[ NEXT-GEN PRE-HIRE ASSESSMENT ]'}
@@ -238,7 +238,7 @@ const Problem = () => (
       Conventional hiring has <span style={{
         background: 'linear-gradient(95deg, oklch(0.68 0.22 45), oklch(0.62 0.28 25), oklch(0.58 0.26 18))',
         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-      }}>lost its integrity</span>.
+      }}>lost integrity</span>.
     </h2>
 
     <p style={{
@@ -560,7 +560,7 @@ const Diversity = () => (
         fontFamily: 'var(--ns-body)', fontSize: 15, lineHeight: 1.55,
         color: 'oklch(0.92 0.01 95 / 0.85)', margin: '0 0 32px',
       }}>
-        Our neuroscience-powered scoring responds dynamically to individual differences, eliminating bias at the source.
+        Our neuroscience-powered scoring responds dynamically to individual differences, eliminating bias and empowering neurodiversity.
       </p>
 
       <div style={{
@@ -1057,8 +1057,16 @@ const FREE_EMAIL_DOMAINS = new Set([
 
 const Contact = () => {
   const [sent, setSent] = React.useState(false);
+  const [name, setName] = React.useState('');
+  const [nameErr, setNameErr] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [emailErr, setEmailErr] = React.useState('');
+
+  const validateName = (v) => {
+    const val = (v || '').trim();
+    if (!val) return 'Please enter your name.';
+    return '';
+  };
 
   const validateEmail = (v) => {
     const val = (v || '').trim().toLowerCase();
@@ -1072,9 +1080,11 @@ const Contact = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    const nErr = validateName(name);
     const err = validateEmail(email);
+    setNameErr(nErr);
     setEmailErr(err);
-    if (!err) setSent(true);
+    if (!nErr && !err) setSent(true);
   };
 
   return (
@@ -1113,7 +1123,24 @@ const Contact = () => {
 
         {!sent ? (
           <form onSubmit={onSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <input required type="text" placeholder="Your name" style={inputStyle} />
+            <input
+              required
+              type="text"
+              placeholder="Your name"
+              value={name}
+              onChange={(e) => { setName(e.target.value); if (nameErr) setNameErr(''); }}
+              onBlur={(e) => setNameErr(validateName(e.target.value))}
+              style={{
+                ...inputStyle,
+                boxShadow: nameErr ? '0 0 0 1px oklch(0.68 0.24 25 / 0.6)' : 'none',
+              }}
+            />
+            {nameErr && (
+              <div style={{
+                fontFamily: 'var(--ns-mono)', fontSize: 11, letterSpacing: 0.4,
+                color: 'oklch(0.72 0.22 30)', marginTop: -6, marginBottom: 2,
+              }}>{nameErr}</div>
+            )}
             <input
               required
               type="email"
@@ -1228,10 +1255,8 @@ const Footer = () => (
       fontFamily: 'var(--ns-mono)', fontSize: 10, letterSpacing: 1.5,
       color: 'oklch(0.92 0.01 95 / 0.72)',
     }}>
-      <a href="#" style={footerLink}>PRIVACY</a>
-      <a href="#" style={footerLink}>TERMS</a>
-      <a href="#" style={footerLink}>SECURITY</a>
-      <a href="#" style={footerLink}>LINKEDIN</a>
+      <a href="https://neurosight.io/Content/Privacypolicyv101.10.21.pdf" target="_blank" rel="noopener" style={footerLink}>PRIVACY</a>
+      <a href="https://www.linkedin.com/company/neurosight/" target="_blank" rel="noopener" style={footerLink}>LINKEDIN</a>
     </div>
     <div style={{
       fontFamily: 'var(--ns-mono)', fontSize: 9, letterSpacing: 1,
