@@ -39,7 +39,7 @@ const jsonResp = (status, obj) =>
   ever rename this field in the frontend, rename it here too — the two
   must match for the trap to function.
 */
-export const onRequestPost = async ({ request, env, waitUntil }) => {
+export const onRequestPost = async ({ request, env }) => {
   let body;
   try {
     body = await request.json();
@@ -113,57 +113,17 @@ export const onRequestPost = async ({ request, env, waitUntil }) => {
     ],
   };
 
-  const autoReply = {
-    personalizations: [
-      {
-        to: [{ email: emailTrim }],
-        subject: 'We got your message — Neurosight',
-      },
-    ],
-    from: { email: SENDGRID_FROM_EMAIL, name: 'Neurosight' },
-    content: [
-      {
-        type: 'text/plain',
-        value:
-          `Hi ${nameTrim},\n\n` +
-          `Thanks for getting in touch. We'll respond within one working day.\n\n` +
-          `— Neurosight\ncontact@neurosight.io\n`,
-      },
-      {
-        type: 'text/html',
-        value:
-          `<p>Hi ${esc(nameTrim)},</p>` +
-          `<p>Thanks for getting in touch. We'll respond within one working day.</p>` +
-          `<p>— Neurosight<br/><a href="mailto:contact@neurosight.io">contact@neurosight.io</a></p>`,
-      },
-    ],
-  };
-
-  let notifRes;
   try {
-    notifRes = await sgSend(notification);
+    const notifRes = await sgSend(notification);
+    if (!notifRes.ok) {
+      const errBody = await notifRes.text().catch(() => '');
+      console.error('SendGrid notification failed', notifRes.status, errBody);
+      return jsonResp(500, { ok: false, error: 'send_failed' });
+    }
   } catch (err) {
     console.error('SendGrid notification fetch threw', err);
     return jsonResp(500, { ok: false, error: 'send_failed' });
   }
-  if (!notifRes.ok) {
-    const errBody = await notifRes.text().catch(() => '');
-    console.error('SendGrid notification failed', notifRes.status, errBody);
-    return jsonResp(500, { ok: false, error: 'send_failed' });
-  }
-
-  // Fire the auto-reply after the response has been flushed to the user.
-  // The submitter already saw success; if this one fails we just log.
-  waitUntil(
-    sgSend(autoReply)
-      .then(async (r) => {
-        if (!r.ok) {
-          const t = await r.text().catch(() => '');
-          console.error('SendGrid auto-reply failed', r.status, t);
-        }
-      })
-      .catch((err) => console.error('SendGrid auto-reply threw', err)),
-  );
 
   return jsonResp(200, { ok: true });
 };
