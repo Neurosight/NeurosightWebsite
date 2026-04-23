@@ -2,6 +2,9 @@
 // Composition: centered hero over full-bleed aurora shader, then
 // alternating two-column sections (copy ⇄ visual), reworked stats grid,
 // diversity, candidate experience, stages, contact. A/B layout via Tweaks.
+import React from 'react';
+import { Aurora } from './aurora.jsx';
+import { WordKindle } from '../animations.jsx';
 
 // Access Tweaks state — kept local so component file is self-sufficient
 const useTweaks = () => {
@@ -16,19 +19,19 @@ const useTweaks = () => {
   return t;
 };
 
-const NS_ACCENTS = {
+export const NS_ACCENTS = {
   magenta: 'oklch(0.72 0.28 8)',
   cyan:    'oklch(0.82 0.18 200)',
   purple:  'oklch(0.78 0.20 320)',
   yellow:  'oklch(0.92 0.18 98)',
 };
 
-const MAX_W = 1280;
+export const MAX_W = 1280;
 
 // ═══════════════════════════════════════════════
 // Navigation bar
 // ═══════════════════════════════════════════════
-const DNav = () => {
+export const DNav = () => {
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const hideTimerRef = React.useRef(null);
@@ -125,7 +128,7 @@ const DNav = () => {
 // ═══════════════════════════════════════════════
 // HERO — full-bleed aurora with centered type
 // ═══════════════════════════════════════════════
-const DHero = () => {
+export const DHero = () => {
   const tw = useTweaks();
   const clients = tw.clients || ['Grant Thornton', 'Virgin Media O2', 'Cognizant', 'Worldpay', 'NHS', 'Sellafield', 'Amey', 'Autotrader', 'Forvis Mazars', 'Welsh Water', 'Fieldfisher', 'Merseyrail', 'Womble Bond Dickinson'];
   const [showTrust, setShowTrust] = React.useState(false);
@@ -217,7 +220,7 @@ const DHero = () => {
           filter: 'drop-shadow(0 0 24px oklch(0.92 0.18 98 / 0.35))',
         }}>
           <img
-            src={(window.__resources && window.__resources.logoDark) || 'logo-dark.png'}
+            src={(window.__resources && window.__resources.logoDark) || '/logo-dark.png'}
             alt="Neurosight"
             style={{ height: 58, display: 'block' }}
           />
@@ -395,7 +398,7 @@ const DClientsMarquee = ({ clients }) => {
 // ═══════════════════════════════════════════════
 // Shared section scaffolding
 // ═══════════════════════════════════════════════
-const DSectionHeader = ({ n, label, color = 'var(--ns-cyan)' }) => (
+export const DSectionHeader = ({ n, label, color = 'var(--ns-cyan)' }) => (
   <div style={{
     fontFamily: 'var(--ns-mono)', fontSize: 12, letterSpacing: 3,
     color, marginBottom: 28, fontWeight: 700,
@@ -405,7 +408,7 @@ const DSectionHeader = ({ n, label, color = 'var(--ns-cyan)' }) => (
 );
 
 // Two-column section helper. `flip` puts visual on the left.
-const DTwoCol = ({ id, flip, left, right, dividerTop = true, bg }) => (
+export const DTwoCol = ({ id, flip, left, right, dividerTop = true, bg }) => (
   <section id={id} style={{
     position: 'relative',
     padding: '140px 32px',
@@ -426,4 +429,3 @@ const DTwoCol = ({ id, flip, left, right, dividerTop = true, bg }) => (
   </section>
 );
 
-Object.assign(window, { DNav, DHero, DSectionHeader, DTwoCol, NS_ACCENTS, MAX_W });

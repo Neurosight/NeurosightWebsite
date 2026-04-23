@@ -1,9 +1,12 @@
 // Neurosight — animation primitives (G / H / P / I / D / C / R / E / Pr / Ct picks)
 // All hooks use refs + IntersectionObserver to trigger once on first view.
+import React from 'react';
 
 // ─── Primitives ──────────────────────────────────────────────
-window.__nsScrollRoot = window.__nsScrollRoot || null;
-function useInView(options = {}) {
+if (typeof window !== 'undefined') {
+  window.__nsScrollRoot = window.__nsScrollRoot || null;
+}
+export function useInView(options = {}) {
   const ref = React.useRef(null);
   const [seen, setSeen] = React.useState(false);
   React.useEffect(() => {
@@ -23,7 +26,7 @@ function useInView(options = {}) {
 }
 
 // G2. Fade-up reveal on scroll ─────────────────────────────────
-function Reveal({ children, delay = 0, y = 16, as: Tag = 'div', style = {}, className = '' }) {
+export function Reveal({ children, delay = 0, y = 16, as: Tag = 'div', style = {}, className = '' }) {
   const [ref, seen] = useInView();
   return (
     <Tag ref={ref} className={className} style={{
@@ -37,7 +40,7 @@ function Reveal({ children, delay = 0, y = 16, as: Tag = 'div', style = {}, clas
 }
 
 // H3. Typewriter (one-shot) ───────────────────────────────────
-function Typewriter({ text, speed = 32, start = 0, caret = true, style = {} }) {
+export function Typewriter({ text, speed = 32, start = 0, caret = true, style = {} }) {
   const [n, setN] = React.useState(0);
   const [ref, seen] = useInView({ threshold: 0.4 });
   React.useEffect(() => {
@@ -68,7 +71,7 @@ function Typewriter({ text, speed = 32, start = 0, caret = true, style = {} }) {
 
 // H1. WordKindle — color/gradient ignites left-to-right per line ─
 // `color`: any CSS color/gradient — applied via background-clip:text on the bright layer.
-function WordKindle({ children, color, delay = 0, durMs = 1430, style = {} }) {
+export function WordKindle({ children, color, delay = 0, durMs = 1430, style = {} }) {
   const [ref, seen] = useInView({ threshold: 0.25 });
   const [p, setP] = React.useState(0);
   React.useEffect(() => {
@@ -114,7 +117,7 @@ function WordKindle({ children, color, delay = 0, durMs = 1430, style = {} }) {
 }
 
 // P1 / R1. Counter roll-up ───────────────────────────────────
-function Counter({ to, from = 0, duration = 1400, prefix = '', suffix = '', format = (n) => Math.round(n).toString(), start = 0, style = {} }) {
+export function Counter({ to, from = 0, duration = 1400, prefix = '', suffix = '', format = (n) => Math.round(n).toString(), start = 0, style = {} }) {
   const [ref, seen] = useInView({ threshold: 0.4 });
   const [v, setV] = React.useState(from);
   React.useEffect(() => {
@@ -135,7 +138,7 @@ function Counter({ to, from = 0, duration = 1400, prefix = '', suffix = '', form
 }
 
 // I1. Bar fill on view ───────────────────────────────────────
-function BarFill({ pct, color, height = 5, duration = 1100, delay = 0 }) {
+export function BarFill({ pct, color, height = 5, duration = 1100, delay = 0 }) {
   const [ref, seen] = useInView({ threshold: 0.35 });
   return (
     <div ref={ref} style={{
@@ -152,7 +155,7 @@ function BarFill({ pct, color, height = 5, duration = 1100, delay = 0 }) {
 }
 
 // E1. Strikethrough wipe ─────────────────────────────────────
-function StrikeWipe({ children, delay = 0, duration = 700, style = {} }) {
+export function StrikeWipe({ children, delay = 0, duration = 700, style = {} }) {
   const [ref, seen] = useInView({ threshold: 0.4 });
   return (
     <span ref={ref} style={{
@@ -172,7 +175,7 @@ function StrikeWipe({ children, delay = 0, duration = 700, style = {} }) {
 
 // Pr2. Node pulse on enter ───────────────────────────────────
 // If `active` is provided, parent controls the trigger; otherwise auto-triggers on view.
-function PulseNode({ color, size = 17, active, children }) {
+export function PulseNode({ color, size = 17, active, children }) {
   const [ref, seen] = useInView({ threshold: 0.6 });
   const fire = active !== undefined ? active : seen;
   return (
@@ -201,7 +204,7 @@ function PulseNode({ color, size = 17, active, children }) {
 }
 
 // D3. Rainbow cycle text ─────────────────────────────────────
-function RainbowCycle({ children, style = {} }) {
+export function RainbowCycle({ children, style = {} }) {
   return (
     <span style={{
       ...style,
@@ -217,7 +220,7 @@ function RainbowCycle({ children, style = {} }) {
 }
 
 // G1. Scroll scanline ────────────────────────────────────────
-function Scanline({ containerRef }) {
+export function Scanline({ containerRef }) {
   const [pct, setPct] = React.useState(0);
   React.useEffect(() => {
     const el = containerRef?.current;
@@ -249,7 +252,7 @@ function Scanline({ containerRef }) {
 }
 
 // G3. Tap ripple — neuron firing ─────────────────────────────
-function Ripples({ containerRef }) {
+export function Ripples({ containerRef }) {
   const [ripples, setRipples] = React.useState([]);
   const overlayRef = React.useRef(null);
   React.useEffect(() => {
@@ -294,7 +297,7 @@ function Ripples({ containerRef }) {
 
 // Group sequencer: wait until all children's container is in view (threshold)
 // then reveal each child with `interval` ms staggered fade-up.
-function SequentialReveal({ children, interval = 250, threshold = 0.7, y = 12, style = {}, itemStyle = {} }) {
+export function SequentialReveal({ children, interval = 250, threshold = 0.7, y = 12, style = {}, itemStyle = {} }) {
   const ref = React.useRef(null);
   const arr = React.Children.toArray(children);
   const [n, setN] = React.useState(-1); // index of last revealed
@@ -324,9 +327,3 @@ function SequentialReveal({ children, interval = 250, threshold = 0.7, y = 12, s
     </div>
   );
 }
-
-Object.assign(window, { SequentialReveal });
-
-Object.assign(window, {
-  useInView, Reveal, Typewriter, WordKindle, Counter, BarFill, StrikeWipe, PulseNode, RainbowCycle, Scanline, Ripples,
-});

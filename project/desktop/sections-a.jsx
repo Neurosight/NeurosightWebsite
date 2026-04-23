@@ -1,4 +1,7 @@
 // Desktop sections: Problem, Insight, Diversity, Compare.
+import React from 'react';
+import { RainbowCycle } from '../animations.jsx';
+import { DSectionHeader, DTwoCol, MAX_W } from './site-shell.jsx';
 
 // Externally-triggered counter — fires once `trigger` flips true, after an optional delay.
 const ControlledCounter = ({ to, from = 0, duration = 1400, prefix = '', suffix = '', delay = 0, trigger }) => {
@@ -24,7 +27,7 @@ const ControlledCounter = ({ to, from = 0, duration = 1400, prefix = '', suffix 
 // ═══════════════════════════════════════════════
 // 01 — PROBLEM
 // ═══════════════════════════════════════════════
-const DProblem = () => {
+export const DProblem = () => {
   const items = [
     ['INACCURATE',        'Fail to predict real-world job performance'],
     ['TIME CONSUMING',    '30–50 anxiety-inducing minutes for candidates'],
@@ -269,7 +272,7 @@ const DInsightBars = ({ rows }) => {
   );
 };
 
-const DInsight = () => {
+export const DInsight = () => {
   const bars = [
     { l: 'SURFACE',   t: 'The answer given',        v: 35,  c: 'oklch(0.92 0.01 95 / 0.85)', tag: 'Conventional tests stop here' },
     { l: 'PATH',      t: 'How decisions were made', v: 70,  c: 'oklch(0.82 0.18 200)',       tag: 'Building full resilience to AI use' },
@@ -366,7 +369,7 @@ const DInsight = () => {
 // ═══════════════════════════════════════════════
 // 03 — DIVERSITY
 // ═══════════════════════════════════════════════
-const DDiversity = () => {
+export const DDiversity = () => {
   const ref = React.useRef(null);
   const triggerRef = React.useRef(null); // 4th list item — fires when fully in view (first 4 visible)
   const [run, setRun] = React.useState(false);
@@ -545,7 +548,7 @@ const DDiversity = () => {
 // ═══════════════════════════════════════════════
 // 04 — COMPARE  (two-col: copy left, table right)
 // ═══════════════════════════════════════════════
-const DCompare = () => {
+export const DCompare = () => {
   const rows = [
     ['Completion time',           '30–50 min', '3–5 min'],
     ['Observed validity',         '0.1–0.2',   '0.4–0.6'],
@@ -640,4 +643,3 @@ const DCompare = () => {
   return <DTwoCol id="compare" flip={true} left={left} right={right} />;
 };
 
-Object.assign(window, { DProblem, DInsight, DDiversity, DCompare });

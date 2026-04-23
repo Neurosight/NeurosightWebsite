@@ -1,10 +1,15 @@
 // Neurosight mobile site — rainbow neon on black
 // Single scroll, single file, single source of truth
+import React from 'react';
+import { useInView, WordKindle, Counter, StrikeWipe, PulseNode, RainbowCycle } from './animations.jsx';
+import { ScaffoldFix } from './desktop/sections-b.jsx';
 
-const LOGO_DARK = (typeof window !== 'undefined' && window.__resources && window.__resources.logoDark) || 'logo-dark.png'; // yellow logo for dark bg
+const LOGO_DARK = (typeof window !== 'undefined' && window.__resources && window.__resources.logoDark) || '/logo-dark.png'; // yellow logo for dark bg
 
 // Tweakable state — populated by TweaksPanel / host
-window.__nsTweaks = window.__nsTweaks || {};
+if (typeof window !== 'undefined') {
+  window.__nsTweaks = window.__nsTweaks || {};
+}
 const useTweaks = () => {
   const [t, setT] = React.useState(window.__nsTweaks);
   React.useEffect(() => {
@@ -1170,10 +1175,14 @@ const FREE_EMAIL_DOMAINS = new Set([
 
 const Contact = () => {
   const [sent, setSent] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [submitErr, setSubmitErr] = React.useState('');
   const [name, setName] = React.useState('');
   const [nameErr, setNameErr] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [emailErr, setEmailErr] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [website, setWebsite] = React.useState('');
 
   const validateName = (v) => {
     const val = (v || '').trim();
@@ -1191,13 +1200,28 @@ const Contact = () => {
     return '';
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const nErr = validateName(name);
     const err = validateEmail(email);
     setNameErr(nErr);
     setEmailErr(err);
-    if (!nErr && !err) setSent(true);
+    if (nErr || err) return;
+    setSubmitting(true);
+    setSubmitErr('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, website }),
+      });
+      if (res.ok) setSent(true);
+      else setSubmitErr('Something went wrong. Please email contact@neurosight.io directly.');
+    } catch {
+      setSubmitErr('Network error. Please email contact@neurosight.io directly.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -1236,9 +1260,21 @@ const Contact = () => {
 
         {!sent ? (
           <form onSubmit={onSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Keep in sync with server validation. */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
+            />
             <input
               required
               type="text"
+              name="name"
               placeholder="Your name"
               value={name}
               onChange={(e) => { setName(e.target.value); if (nameErr) setNameErr(''); }}
@@ -1257,6 +1293,7 @@ const Contact = () => {
             <input
               required
               type="email"
+              name="email"
               placeholder="Work email"
               value={email}
               onChange={(e) => { setEmail(e.target.value); if (emailErr) setEmailErr(''); }}
@@ -1273,16 +1310,30 @@ const Contact = () => {
                 color: 'oklch(0.72 0.22 30)', marginTop: -6, marginBottom: 2,
               }}>{emailErr}</div>
             )}
-            <textarea placeholder="What are you hiring for?" rows={3} style={{ ...inputStyle, resize: 'none', fontFamily: 'var(--ns-body)' }} />
-            <button type="submit" style={{
+            <textarea
+              placeholder="What are you hiring for?" name="message" rows={3}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              maxLength={5000}
+              style={{ ...inputStyle, resize: 'none', fontFamily: 'var(--ns-body)' }}
+            />
+            {submitErr && (
+              <div style={{
+                fontFamily: 'var(--ns-mono)', fontSize: 11, letterSpacing: 0.4,
+                color: 'oklch(0.72 0.22 30)', marginTop: -2, marginBottom: 2,
+              }}>{submitErr}</div>
+            )}
+            <button type="submit" disabled={submitting} style={{
               marginTop: 4, padding: '16px 22px',
               background: 'var(--ns-yellow)', color: '#000',
               fontFamily: 'var(--ns-display)', fontWeight: 600, fontSize: 13,
-              letterSpacing: 0.8, border: 'none', cursor: 'pointer',
+              letterSpacing: 0.8, border: 'none',
+              cursor: submitting ? 'wait' : 'pointer',
+              opacity: submitting ? 0.6 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
               boxShadow: '0 0 40px oklch(0.92 0.18 98 / 0.4)',
             }}>
-              REQUEST A DEMO
+              {submitting ? 'SENDING…' : 'REQUEST A DEMO'}
               <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
                 <path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -1409,4 +1460,4 @@ const NeurosightSite = () => (
   </div>
 );
 
-Object.assign(window, { NeurosightSite });
+export { NeurosightSite };

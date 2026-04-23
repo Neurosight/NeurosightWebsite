@@ -1,4 +1,7 @@
 // Desktop sections: Results (4x2 grid), Candidate Experience, Process, Contact, Footer.
+import React from 'react';
+import { useInView, Counter, StrikeWipe } from '../animations.jsx';
+import { DSectionHeader, MAX_W } from './site-shell.jsx';
 
 // Inject glitch-repair keyframes once.
 if (typeof document !== 'undefined' && !document.getElementById('ns-glitch-fix-css')) {
@@ -235,7 +238,7 @@ const SCAFFOLD_GLYPHS = (() => {
   return [F, I, X];
 })();
 
-const ScaffoldFix = () => {
+export const ScaffoldFix = () => {
   const hostRef = React.useRef(null);
   const sizerRef = React.useRef(null);
   const [box, setBox] = React.useState({ w: 0, h: 0 });
@@ -403,7 +406,7 @@ window.RotatingPraise = RotatingPraise;
 // ═══════════════════════════════════════════════
 // 05 — RESULTS  (big 4x2 grid, the showstopper)
 // ═══════════════════════════════════════════════
-const DResults = () => {
+export const DResults = () => {
   const stats = [
     { n: 96,   suf: '%', l: 'New hires rated "excellent" or "good"',         c: 'oklch(0.82 0.18 200)' },
     { n: 130,  suf: '%', l: 'Increase in neurodiverse hires',                 c: 'oklch(0.78 0.20 320)' },
@@ -527,7 +530,7 @@ const DResults = () => {
 // ═══════════════════════════════════════════════
 // 06 — CANDIDATE EXPERIENCE
 // ═══════════════════════════════════════════════
-const DCandidateExp = () => {
+export const DCandidateExp = () => {
   const left = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, height: '100%' }}>
       <DSectionHeader n="06" label="CANDIDATE EXPERIENCE" color="oklch(0.82 0.18 200)" />
@@ -662,7 +665,7 @@ const DCandidateExp = () => {
 // ═══════════════════════════════════════════════
 // 07 — PROCESS (Stages)
 // ═══════════════════════════════════════════════
-const DProcess = () => {
+export const DProcess = () => {
   const steps = [
     { n: '01', t: 'Realistic job preview', time: '5 min',
       d: 'An immersive, interactive preview. Prevents a flood of AI-generated applications. Encourages the right candidates to apply.',
@@ -815,12 +818,16 @@ const dInputStyle = {
   WebkitAppearance: 'none',
 };
 
-const DContact = () => {
+export const DContact = () => {
   const [sent, setSent] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [submitErr, setSubmitErr] = React.useState('');
   const [name, setName] = React.useState('');
   const [nameErr, setNameErr] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [emailErr, setEmailErr] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [website, setWebsite] = React.useState('');
 
   const validateName = (v) => {
     const val = (v || '').trim();
@@ -837,13 +844,28 @@ const DContact = () => {
     return '';
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     const nErr = validateName(name);
     const err = validate(email);
     setNameErr(nErr);
     setEmailErr(err);
-    if (!nErr && !err) setSent(true);
+    if (nErr || err) return;
+    setSubmitting(true);
+    setSubmitErr('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, website }),
+      });
+      if (res.ok) setSent(true);
+      else setSubmitErr('Something went wrong. Please email contact@neurosight.io directly.');
+    } catch {
+      setSubmitErr('Network error. Please email contact@neurosight.io directly.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -921,8 +943,19 @@ const DContact = () => {
         <div style={{ paddingTop: 50 }}>
           {!sent ? (
             <form onSubmit={onSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Keep in sync with server validation. */}
               <input
-                required type="text" placeholder="Your name"
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
+              />
+              <input
+                required type="text" placeholder="Your name" name="name"
                 value={name}
                 onChange={(e) => { setName(e.target.value); if (nameErr) setNameErr(''); }}
                 onBlur={(e) => setNameErr(validateName(e.target.value))}
@@ -938,7 +971,7 @@ const DContact = () => {
                 }}>{nameErr}</div>
               )}
               <input
-                required type="email" placeholder="Work email"
+                required type="email" placeholder="Work email" name="email"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); if (emailErr) setEmailErr(''); }}
                 onBlur={(e) => setEmailErr(validate(e.target.value))}
@@ -953,16 +986,30 @@ const DContact = () => {
                   color: 'oklch(0.72 0.22 30)', marginTop: -8, marginBottom: 2,
                 }}>{emailErr}</div>
               )}
-              <textarea placeholder="What are you hiring for?" rows={4} style={{ ...dInputStyle, resize: 'none', fontFamily: 'var(--ns-body)' }} />
-              <button type="submit" style={{
+              <textarea
+                placeholder="What are you hiring for?" name="message" rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                maxLength={5000}
+                style={{ ...dInputStyle, resize: 'none', fontFamily: 'var(--ns-body)' }}
+              />
+              {submitErr && (
+                <div style={{
+                  fontFamily: 'var(--ns-mono)', fontSize: 11, letterSpacing: 0.4,
+                  color: 'oklch(0.72 0.22 30)', marginTop: -4, marginBottom: 2,
+                }}>{submitErr}</div>
+              )}
+              <button type="submit" disabled={submitting} style={{
                 marginTop: 10, padding: '20px 26px',
                 background: 'var(--ns-yellow)', color: '#000',
                 fontFamily: 'var(--ns-display)', fontWeight: 600, fontSize: 14,
-                letterSpacing: 1, border: 'none', cursor: 'pointer',
+                letterSpacing: 1, border: 'none',
+                cursor: submitting ? 'wait' : 'pointer',
+                opacity: submitting ? 0.6 : 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
                 boxShadow: '0 0 50px oklch(0.92 0.18 98 / 0.4)',
               }}>
-                REQUEST A DEMO
+                {submitting ? 'SENDING…' : 'REQUEST A DEMO'}
                 <svg width="16" height="11" viewBox="0 0 14 10" fill="none">
                   <path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -997,7 +1044,7 @@ const DContact = () => {
 // ═══════════════════════════════════════════════
 // FOOTER
 // ═══════════════════════════════════════════════
-const DFooter = () => (
+export const DFooter = () => (
   <footer style={{
     padding: '56px 32px 44px',
     borderTop: '1px solid oklch(0.85 0.01 95 / 0.08)',
@@ -1008,7 +1055,7 @@ const DFooter = () => (
       alignItems: 'center', gap: 28,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-        <img src={(window.__resources && window.__resources.logoDark) || 'logo-dark.png'}
+        <img src={(window.__resources && window.__resources.logoDark) || '/logo-dark.png'}
              alt="Neurosight" style={{ height: 28, display: 'block', opacity: 0.8 }} />
         <div style={{
           fontFamily: 'var(--ns-mono)', fontSize: 10, letterSpacing: 1.2,
@@ -1029,4 +1076,3 @@ const DFooter = () => (
   </footer>
 );
 
-Object.assign(window, { DResults, DCandidateExp, DProcess, DContact, DFooter, ScaffoldFix });

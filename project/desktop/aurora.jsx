@@ -1,7 +1,8 @@
 // Aurora — WebGL fragment shader, cursor-reactive, restrained intensity.
 // Full-viewport canvas that mounts behind the hero. Falls back to CSS gradient.
+import React from 'react';
 
-function Aurora({ intensity = 1.0, style = {} }) {
+export function Aurora({ intensity = 1.0, style = {} }) {
   const canvasRef = React.useRef(null);
   const mouse = React.useRef({ x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 });
 
@@ -280,4 +281,3 @@ function Aurora({ intensity = 1.0, style = {} }) {
   );
 }
 
-window.Aurora = Aurora;
