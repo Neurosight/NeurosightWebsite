@@ -242,13 +242,13 @@ export const DHero = () => {
         </h1>
 
         <p style={{
-          fontFamily: 'var(--ns-body)', fontSize: 22, lineHeight: 1.45,
+          fontFamily: 'var(--ns-body)', fontSize: 'clamp(16px, min(1.7vw, 2.25vh), 22px)', lineHeight: 1.45,
           color: 'oklch(0.97 0.01 95 / 0.88)',
           margin: '30px 0 0', maxWidth: 640,
           textWrap: 'pretty',
           textShadow: '0 1px 20px rgba(0,0,0,0.4)',
         }}>
-          Online pre-hire assessments that identify genuine talent without bias — in <span style={{ color: 'var(--ns-white)', fontWeight: 500 }}>3 to 5 minutes</span>. Fully resilient to AI.
+          Online pre-hire assessments that identify genuine talent<br />without bias — in <span style={{ color: 'var(--ns-white)', fontWeight: 500 }}>3 to 5 minutes</span>. Fully resilient to AI.
         </p>
 
         <div style={{ display: 'flex', gap: 14, marginTop: 35, flexWrap: 'wrap', justifyContent: 'center' }}>
