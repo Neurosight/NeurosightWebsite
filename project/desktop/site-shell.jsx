@@ -133,7 +133,7 @@ export const DBookCTA = () => {
   const tw = useTweaks();
   const [scrolled, setScrolled] = React.useState(false);
   React.useEffect(() => {
-    const onScroll = () => { if (window.scrollY > 140) setScrolled(true); };
+    const onScroll = () => { if (window.scrollY > 320) setScrolled(true); };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
