@@ -3,6 +3,7 @@
 import React from 'react';
 import { useInView, WordKindle, Counter, StrikeWipe, PulseNode, RainbowCycle } from './animations.jsx';
 import { ScaffoldFix } from './desktop/sections-b.jsx';
+import { Aurora } from './desktop/aurora.jsx';
 
 const LOGO_DARK = (typeof window !== 'undefined' && window.__resources && window.__resources.logoDark) || '/logo-dark.png'; // yellow logo for dark bg
 
