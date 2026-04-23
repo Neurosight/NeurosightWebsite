@@ -1,23 +1,14 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Neurosight - Online Pre-Hire Assessment</title>
-<meta name="description" content="Neurosight provides short, scientifically validated psychometric assessments that predict job performance, deliver AI resilience, and strips the bias out of volume and early-career hiring." />
-<link rel="icon" type="image/png" href="./neurosight-thumbnail.png" />
-<meta name="ext-resource-dependency" content="./logo-dark.png" data-resource-id="logoDark" />
-<template id="__bundler_thumbnail" data-bg-color="#000000">
-  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
-    <rect x="400" y="200" width="400" height="400" fill="none" stroke="#F1C40F" stroke-width="32"/>
-    <circle cx="540" cy="380" r="22" fill="#F1C40F"/>
-    <circle cx="660" cy="340" r="22" fill="#F1C40F"/>
-    <circle cx="640" cy="460" r="22" fill="#F1C40F"/>
-    <line x1="540" y1="380" x2="660" y2="340" stroke="#F1C40F" stroke-width="10"/>
-    <line x1="660" y1="340" x2="640" y2="460" stroke="#F1C40F" stroke-width="10"/>
-    <line x1="540" y1="380" x2="640" y2="460" stroke="#F1C40F" stroke-width="10"/>
-  </svg>
-</template>
+<meta name="description" content="Neurosight provides short, scientifically validated psychometric assessments that predict job performance, deliver AI resilience, and strips the bias out of volume and early-career hiring.">
+<link rel="icon" type="image/png" href="./neurosight-thumbnail.png">
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -111,6 +102,8 @@
   @keyframes ns-marquee-d-rev { 0% { transform: translateX(-33.333%); } 100% { transform: translateX(0); } }
   @keyframes ns-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
   @keyframes ns-scroll-bob { 0%, 100% { transform: translateY(0); opacity: 0.85; } 50% { transform: translateY(6px); opacity: 1; } }
+  @keyframes ns-chev-left { 0%, 100% { transform: translateX(0); opacity: 0.85; } 50% { transform: translateX(-3px); opacity: 1; } }
+  @keyframes ns-chev-right { 0%, 100% { transform: translateX(0); opacity: 0.85; } 50% { transform: translateX(3px); opacity: 1; } }
   .ns-marquee-track { padding-right: 10px; }
   .paused .ns-marquee-track { animation-play-state: paused; }
 
@@ -218,7 +211,8 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
     "NHS",
     "Sellafield",
     "Amey",
-    "Autotrader",
+    "Autotrader Group",
+    "Nuclear Decommissioning Authority",
     "Forvis Mazars",
     "Welsh Water",
     "Fieldfisher",
@@ -226,7 +220,8 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
     "Womble Bond Dickinson",
     "DLA Piper",
     "UK National Nuclear Laboratory",
-    "VWV"
+    "VWV",
+    "HCR"
   ],
   "heroEyebrow": "NEXT-GEN PRE-HIRE ASSESSMENT",
   "ctaLabel": "BOOK A DEMO",
@@ -543,5 +538,6 @@ const App = () => {
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
 
-</body>
-</html>
+
+
+</body></html>

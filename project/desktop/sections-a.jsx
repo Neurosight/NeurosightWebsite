@@ -29,13 +29,12 @@ const DProblem = () => {
     ['INACCURATE',        'Fail to predict real-world job performance'],
     ['TIME CONSUMING',    '30–50 anxiety-inducing minutes for candidates'],
     ['BIASED',            'One-size-fits-all algorithms harm diversity and neurodiversity'],
-    ['VULNERABLE TO AI',  'Trivially defeated by candidates using AI apps like ChatGPT to photo their laptop screen'],
+    ['VULNERABLE TO AI',  'Easily beaten by mobile AI apps — photo the laptop screen, and get the answer'],
   ];
   const listRef = React.useRef(null);
   const statRef = React.useRef(null);
   const [statFired, setStatFired] = React.useState(false);
   const [pulsing, setPulsing] = React.useState(() => items.map(() => false));
-  const [sidesDrawn, setSidesDrawn] = React.useState([false, false, false, false]);
   const firedRef = React.useRef(false);
 
   // 50% stat counter — fires only once its box is FULLY in view, with a 200ms delay.
@@ -61,7 +60,6 @@ const DProblem = () => {
         items.forEach((_, i) => {
           setTimeout(() => {
             setPulsing(p => { const n = p.slice(); n[i] = true; return n; });
-            setSidesDrawn(s => { const n = s.slice(); n[i] = true; return n; });
             setTimeout(() => setPulsing(p => { const n = p.slice(); n[i] = false; return n; }), 900);
           }, baseDelay + i * 350);
         });
@@ -153,36 +151,9 @@ const DProblem = () => {
         background: 'linear-gradient(135deg, oklch(0.3 0.1 8 / 0.10), transparent)',
         padding: '4px 28px',
         position: 'relative',
+        border: '1.5px solid oklch(0.78 0.26 8)',
+        boxShadow: '0 0 6px oklch(0.72 0.26 8 / 0.55)',
       }}>
-        {/* Border drawn as four independent divs, one per pulse, clockwise.
-            Each div uses a CSS transform (scaleX/scaleY) anchored at the start
-            corner, so it grows from 0 → full length in 340ms. */}
-        {(() => {
-          const stroke = 'oklch(0.78 0.26 8)';
-          const thickness = 1.5;
-          const glow = '0 0 6px oklch(0.72 0.26 8 / 0.55)';
-          // [position, axis, originWhenDrawing]
-          //   top    : full-width bar at top, scales L→R → origin left
-          //   right  : full-height bar at right, scales T→B → origin top
-          //   bottom : full-width bar at bottom, scales R→L → origin right
-          //   left   : full-height bar at left, scales B→T → origin bottom
-          const sides = [
-            { key: 't', style: { left: 0, right: 0, top: 0, height: thickness, transformOrigin: 'left center',    transform: sidesDrawn[0] ? 'scaleX(1)' : 'scaleX(0)' } },
-            { key: 'r', style: { right: 0, top: 0, bottom: 0, width: thickness, transformOrigin: 'center top',    transform: sidesDrawn[1] ? 'scaleY(1)' : 'scaleY(0)' } },
-            { key: 'b', style: { left: 0, right: 0, bottom: 0, height: thickness, transformOrigin: 'right center',transform: sidesDrawn[2] ? 'scaleX(1)' : 'scaleX(0)' } },
-            { key: 'l', style: { left: 0, top: 0, bottom: 0, width: thickness, transformOrigin: 'center bottom',  transform: sidesDrawn[3] ? 'scaleY(1)' : 'scaleY(0)' } },
-          ];
-          return sides.map(s => (
-            <div key={s.key} aria-hidden style={{
-              position: 'absolute',
-              background: stroke,
-              boxShadow: glow,
-              transition: 'transform 340ms linear',
-              pointerEvents: 'none',
-              ...s.style,
-            }} />
-          ));
-        })()}
         {items.map(([tag, desc], i) => (
           <div key={i} style={{
             display: 'flex', alignItems: 'baseline', gap: 22,
@@ -260,7 +231,8 @@ const DInsightBars = ({ rows }) => {
   return (
     <div ref={ref} style={{
       padding: 32,
-      border: '1px solid oklch(0.85 0.01 95 / 0.1)',
+      border: '1.5px solid var(--ns-cyan)',
+      boxShadow: '0 0 6px oklch(0.82 0.18 200 / 0.55)',
       background: 'linear-gradient(180deg, transparent, oklch(0.82 0.18 200 / 0.05))',
     }}>
       {rows.map((x, i) => (

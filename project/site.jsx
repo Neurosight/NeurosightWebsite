@@ -23,7 +23,7 @@ const SectionTag = ({ n, label, color = 'var(--ns-cyan)' }) => (
     fontFamily: 'var(--ns-mono)', fontSize: 12, letterSpacing: 2.5,
     color, marginBottom: 20, fontWeight: 700,
   }}>
-    <span style={{ opacity: 0.5 }}>[</span> {label} <span style={{ opacity: 0.5 }}>]</span>
+    {label}
   </div>
 );
 
@@ -133,6 +133,10 @@ const Hero = () => {
   const KINDLE_OFFSET = 400;
   return (
   <section style={{ position: 'relative', padding: '60px 22px 84px', overflow: 'hidden' }}>
+    {/* Touch-reactive plasma — same shader as desktop. */}
+    <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+      <Aurora intensity={0.9} />
+    </div>
     <div style={{
       position: 'absolute', top: -160, left: -140, width: 380, height: 380,
       background: 'radial-gradient(circle, oklch(0.68 0.28 8 / 0.55), transparent 65%)',
@@ -294,7 +298,7 @@ const LimitationsList = () => {
     ['INACCURATE', 'Fail to predict real-world job performance'],
     ['TIME CONSUMING', '30–50 anxiety-inducing minutes for candidates'],
     ['BIASED', 'One-size-fits-all algorithms harm diversity and neurodiversity'],
-    ['VULNERABLE TO AI', 'Trivially defeated by candidates using AI apps like ChatGPT to photo their laptop screen'],
+    ['VULNERABLE TO AI', 'Easily beaten by mobile AI apps — photo the laptop screen, and get the answer'],
   ];
   const wrapRef = React.useRef(null);
   const [pulsing, setPulsing] = React.useState(() => items.map(() => false));
@@ -543,10 +547,7 @@ const Diversity = () => (
       }}>
         Everyone is <RainbowCycle>unique</RainbowCycle>.
         <span style={{ display: 'block', height: 10 }} />
-        <span style={{
-          background: 'linear-gradient(95deg, oklch(0.78 0.20 320), oklch(0.82 0.18 200))',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>Their scoring algorithm should be, too.</span>
+        <span style={{ color: 'var(--ns-white)' }}>Their scoring algorithm should be, too.</span>
       </h2>
 
       <p style={{
@@ -563,31 +564,132 @@ const Diversity = () => (
         Our neuroscience-powered scoring responds dynamically to individual differences, eliminating bias and empowering neurodiversity.
       </p>
 
-      <div style={{
-        padding: '22px 20px',
-        border: '1px solid oklch(0.78 0.20 320 / 0.35)',
-        background: 'linear-gradient(135deg, oklch(0.35 0.12 320 / 0.15), transparent)',
-      }}>
-        <div style={{
-          fontFamily: 'var(--ns-mono)', fontSize: 9.5, letterSpacing: 1.5,
-          color: 'oklch(0.78 0.20 320)', marginBottom: 10,
-        }}>BIAS ELIMINATED ACROSS</div>
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', gap: 8,
-        }}>
-          {['Ethnicity', 'Gender', 'Socio-economic status', 'Disability', 'Neurodiversity'].map((x, i) => (
-            <Reveal key={x} as="span" delay={i * 70} y={6} style={{
-              padding: '6px 10px',
-              border: '1px solid oklch(0.85 0.01 95 / 0.18)',
-              fontFamily: 'var(--ns-body)', fontSize: 12,
-              color: 'var(--ns-white)',
-            }}>{x}</Reveal>
-          ))}
-        </div>
-      </div>
+      <DiversityBox />
     </div>
   </section>
 );
+
+const DIVERSITY_DEMOS = [
+  {
+    label: 'Ethnicity',
+    color: 'oklch(0.82 0.18 200)',
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="26" cy="28" r="10" />
+        <path d="M8 64 C 8 50 18 44 26 44 C 34 44 44 50 44 64" />
+        <circle cx="52" cy="34" r="9" opacity="0.65" />
+        <path d="M34 64 C 34 52 43 47 52 47 C 60 47 70 52 70 64" opacity="0.65" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Gender',
+    color: 'oklch(0.78 0.20 320)',
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="32" cy="40" r="18" />
+        <circle cx="48" cy="40" r="18" opacity="0.7" />
+        <line x1="40" y1="12" x2="40" y2="68" opacity="0.5" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Socio-economic status',
+    color: 'oklch(0.92 0.18 98)',
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="10" y="52" width="12" height="18" />
+        <rect x="26" y="40" width="12" height="30" opacity="0.8" />
+        <rect x="42" y="28" width="12" height="42" opacity="0.65" />
+        <rect x="58" y="16" width="12" height="54" opacity="0.5" />
+        <line x1="6" y1="12" x2="74" y2="12" strokeDasharray="3 3" opacity="0.7" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Disability',
+    color: 'oklch(0.80 0.19 155)',
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="40" cy="40" r="30" opacity="0.4" />
+        <circle cx="40" cy="24" r="5" />
+        <line x1="40" y1="29" x2="40" y2="52" />
+        <line x1="26" y1="38" x2="54" y2="38" />
+        <line x1="40" y1="52" x2="30" y2="64" />
+        <line x1="40" y1="52" x2="50" y2="64" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Neurodiversity',
+    color: 'oklch(0.72 0.18 240)',
+    svg: (
+      <svg viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M26 20 C 14 22 10 36 16 44 C 10 52 16 64 28 62 C 32 68 46 68 50 62 C 62 64 68 52 62 44 C 68 36 64 22 52 20 C 48 14 32 14 26 20 Z" />
+        <path d="M40 20 L 40 62" opacity="0.45" />
+        <path d="M28 34 C 34 32 38 36 40 40 C 42 44 46 48 52 46" opacity="0.75" />
+        <path d="M30 50 C 34 48 40 50 40 40" opacity="0.6" />
+      </svg>
+    ),
+  },
+];
+
+const DiversityBox = () => {
+  const triggerRef = React.useRef(null);
+  const [run, setRun] = React.useState(false);
+  React.useEffect(() => {
+    if (!triggerRef.current) return;
+    const root = window.__nsScrollRoot || null;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= 0.99) { setRun(true); io.disconnect(); }
+    }, { threshold: [0, 0.5, 0.9, 0.99, 1], root });
+    io.observe(triggerRef.current);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div style={{
+      border: '1px solid oklch(0.78 0.20 320 / 0.35)',
+      background: 'linear-gradient(180deg, oklch(0.12 0.06 320 / 0.35), transparent)',
+      padding: '22px 18px', position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{
+        fontFamily: 'var(--ns-mono)', fontSize: 9.5, letterSpacing: 1.5,
+        color: 'oklch(0.78 0.20 320)', marginBottom: 16, fontWeight: 800,
+      }}>ADVERSE IMPACT ELIMINATED ACROSS</div>
+      <ul style={{
+        listStyle: 'none', padding: 0, margin: 0,
+        display: 'flex', flexDirection: 'column', gap: 0,
+      }}>
+        {DIVERSITY_DEMOS.map((d, i) => (
+          <li key={d.label} ref={i === 3 ? triggerRef : null} style={{
+            display: 'grid',
+            gridTemplateColumns: '44px 1fr',
+            alignItems: 'center',
+            gap: 14,
+            padding: '12px 2px',
+            borderTop: i === 0 ? 'none' : '1px solid oklch(0.85 0.01 95 / 0.08)',
+            opacity: run ? 1 : 0,
+            transform: run ? 'translateX(0)' : 'translateX(-14px)',
+            transition: `opacity 520ms ease-out ${i * 200}ms, transform 520ms cubic-bezier(.2,.8,.2,1) ${i * 200}ms`,
+          }}>
+            <div style={{
+              width: 36, height: 36,
+              display: 'grid', placeItems: 'center',
+              color: d.color,
+              filter: `drop-shadow(0 0 6px ${d.color})`,
+            }}>
+              {d.svg}
+            </div>
+            <div style={{
+              fontFamily: 'var(--ns-display)', fontSize: 15, fontWeight: 500,
+              letterSpacing: -0.2, color: 'var(--ns-white)',
+            }}>{d.label}</div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 // ────────────────────────────────────────────────
 // Comparison table
@@ -642,7 +744,11 @@ const Compare = () => {
         fontFamily: 'var(--ns-display)', fontSize: 34, lineHeight: 1.02,
         letterSpacing: -1.2, fontWeight: 500, margin: '0 0 32px', color: 'var(--ns-white)',
       }}>
-        The difference,<br/>measured.
+        The difference,<br/><span style={{
+          background: 'linear-gradient(95deg, oklch(0.72 0.24 8), oklch(0.82 0.18 200))',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text', color: 'transparent',
+        }}>measured</span>.
       </h2>
 
       <div ref={tableRef} style={{ border: '1px solid oklch(0.85 0.01 95 / 0.12)' }}>
@@ -996,7 +1102,7 @@ const HowItWorks = () => {
       n: '01',
       t: 'Realistic job preview',
       time: '5 min',
-      d: 'An immersive, interactive preview. Prevents a flood of AI-generated auto-apply applications. Encourages the right candidates to apply.',
+      d: 'An immersive, interactive preview. Prevents a flood of AI-generated applications. Encourages the right candidates to apply.',
       c: 'oklch(0.82 0.18 200)',
     },
     {
@@ -1020,10 +1126,17 @@ const HowItWorks = () => {
 
       <h2 style={{
         fontFamily: 'var(--ns-display)', fontSize: 34, lineHeight: 1.02,
-        letterSpacing: -1.2, fontWeight: 500, margin: '0 0 36px', color: 'var(--ns-white)',
+        letterSpacing: -1.2, fontWeight: 500, margin: '0 0 20px', color: 'var(--ns-white)',
       }}>
         End-to-end hiring,<br/>fit for the age of AI.
       </h2>
+
+      <p style={{
+        fontFamily: 'var(--ns-body)', fontSize: 15, lineHeight: 1.5,
+        color: 'oklch(0.92 0.01 95 / 0.85)', margin: '0 0 36px', textWrap: 'pretty',
+      }}>
+        We support end-to-end hiring transformation — or you can simply plug our online assessment into your existing process.
+      </p>
 
       <div style={{ position: 'relative' }}>
         <div style={{
@@ -1107,12 +1220,12 @@ const Contact = () => {
           fontFamily: 'var(--ns-display)', fontSize: 42, lineHeight: 0.96,
           letterSpacing: -1.6, fontWeight: 500, margin: 0, color: 'var(--ns-white)',
         }}>
-          Let's fix
+          Let's <ScaffoldFix />
           <br />
           <span style={{
             background: 'linear-gradient(95deg, oklch(0.92 0.18 98), oklch(0.78 0.20 320), oklch(0.82 0.18 200))',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>your hiring.</span>
+          }}>your hiring</span>.
         </h2>
         <p style={{
           fontFamily: 'var(--ns-body)', fontSize: 15, lineHeight: 1.5,

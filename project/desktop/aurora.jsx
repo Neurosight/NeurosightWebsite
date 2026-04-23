@@ -197,6 +197,17 @@ function Aurora({ intensity = 1.0, style = {} }) {
     };
     window.addEventListener('mousemove', onMove, { passive: true });
 
+    // Touch support — mirror cursor handling so the shader responds on mobile.
+    const onTouch = (e) => {
+      const t = e.touches && e.touches[0];
+      if (!t) return;
+      const r = canvas.getBoundingClientRect();
+      mouse.current.tx = (t.clientX - r.left) / r.width;
+      mouse.current.ty = 1.0 - (t.clientY - r.top) / r.height;
+    };
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('touchmove',  onTouch, { passive: true });
+
     const start = performance.now();
     let raf;
     let running = true; // set false when off-screen or tab hidden
@@ -246,6 +257,8 @@ function Aurora({ intensity = 1.0, style = {} }) {
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchstart', onTouch);
+      window.removeEventListener('touchmove', onTouch);
     };
   }, [intensity]);
 

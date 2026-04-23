@@ -259,9 +259,11 @@ const ScaffoldFix = () => {
     const io = new IntersectionObserver(([e]) => {
       if (e.intersectionRatio >= 0.9 && !started.current) {
         started.current = true;
-        setTimeout(() => setPhase('drawing'), 400);
-        // drawing runs ~1200ms total; hold for a beat, then settle
-        setTimeout(() => setPhase('done'), 400 + 1400);
+        setTimeout(() => setPhase('drawing'), 900);
+        // Scaffold draws for ~1380ms (max delay 980ms + 400ms brace duration).
+        // Hold the fully-built scaffold for ~420ms before resolving to the word
+        // so the "fix" doesn't appear mid-construction.
+        setTimeout(() => setPhase('done'), 900 + 1380 + 420);
         io.disconnect();
       }
     }, { threshold: [0, 0.5, 0.9, 1] });
@@ -663,7 +665,7 @@ const DCandidateExp = () => {
 const DProcess = () => {
   const steps = [
     { n: '01', t: 'Realistic job preview', time: '5 min',
-      d: 'An immersive, interactive preview. Prevents a flood of AI-generated auto-apply applications. Encourages the right candidates to apply.',
+      d: 'An immersive, interactive preview. Prevents a flood of AI-generated applications. Encourages the right candidates to apply.',
       c: 'oklch(0.82 0.18 200)' },
     { n: '02', t: 'Bespoke Neurosight assessment', time: '3–5 min',
       d: 'Brand-aligned, fully AI-resilient psychometric assessment tuned to your specific drivers of success — empowering efficient screening.',
@@ -708,6 +710,13 @@ const DProcess = () => {
               backgroundClip: 'text', color: 'transparent',
             }}>age of AI</span>.
           </h2>
+          <p style={{
+            fontFamily: 'var(--ns-body)', fontSize: 19, lineHeight: 1.5,
+            color: 'oklch(0.92 0.01 95 / 0.85)',
+            margin: '28px auto 0', maxWidth: 780, textWrap: 'pretty',
+          }}>
+            We support end-to-end hiring transformation — or you can simply plug our online assessment into your existing process.
+          </p>
         </div>
 
         {/* Horizontal stage rail */}
@@ -1020,4 +1029,4 @@ const DFooter = () => (
   </footer>
 );
 
-Object.assign(window, { DResults, DCandidateExp, DProcess, DContact, DFooter });
+Object.assign(window, { DResults, DCandidateExp, DProcess, DContact, DFooter, ScaffoldFix });

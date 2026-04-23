@@ -130,6 +130,52 @@ const DHero = () => {
   const clients = tw.clients || ['Grant Thornton', 'Virgin Media O2', 'Cognizant', 'Worldpay', 'NHS', 'Sellafield', 'Amey', 'Autotrader', 'Forvis Mazars', 'Welsh Water', 'Fieldfisher', 'Merseyrail', 'Womble Bond Dickinson'];
   const [showTrust, setShowTrust] = React.useState(false);
   const [showScroll, setShowScroll] = React.useState(false);
+  const [scrollTop, setScrollTop] = React.useState(null);
+  const ctaRef = React.useRef(null);
+  const trustRef = React.useRef(null);
+  const sectionRef = React.useRef(null);
+  const [minH, setMinH] = React.useState('100vh');
+  const [trustBottom, setTrustBottom] = React.useState(null);
+  const [scrollBottom, setScrollBottom] = React.useState(null);
+  React.useEffect(() => {
+    const measure = () => {
+      const cta = ctaRef.current, trust = trustRef.current, sec = sectionRef.current;
+      if (!cta || !trust || !sec) return;
+      const secR = sec.getBoundingClientRect();
+      const ctaR = cta.getBoundingClientRect();
+      const trustH = trust.offsetHeight;
+      const winH = window.innerHeight;
+      // CTA bottom measured RELATIVE to section top (scroll-independent).
+      // Then simulate what CTA bottom would be in viewport if section were pinned to top.
+      const ctaBottomInSec = ctaR.bottom - secR.top;
+      const ctaBottomAsIfAtTop = ctaBottomInSec;
+      const spaceBelowCta = winH - ctaBottomAsIfAtTop;
+      const idealGap = (spaceBelowCta - trustH) / 2; // gap above and below Trusted By
+      if (idealGap >= 18) {
+        setMinH('100vh');
+        setTrustBottom(idealGap);
+        setScrollBottom(Math.max(2, idealGap / 2 - 6));
+      } else {
+        // Not enough room: grow section so there's exactly 18px between CTA and Trust.
+        const padBelow = 24;
+        const needed = ctaBottomInSec + 18 + trustH + padBelow;
+        setMinH(`${Math.ceil(Math.max(winH, needed))}px`);
+        setTrustBottom(padBelow);
+        setScrollBottom(Math.max(4, padBelow / 2 - 8));
+      }
+      // Scroll cue midway between CTA bottom and Trust top (section-relative).
+      const trustTop = ctaBottomInSec + Math.max(18, idealGap);
+      const mid = (ctaBottomInSec + trustTop) / 2;
+      setScrollTop(mid);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (sectionRef.current) ro.observe(sectionRef.current);
+    window.addEventListener('resize', measure);
+    const id = setTimeout(measure, 100);
+    const id2 = setTimeout(measure, 2700); // after trust fades in
+    return () => { ro.disconnect(); window.removeEventListener('resize', measure); clearTimeout(id); clearTimeout(id2); };
+  }, []);
   React.useEffect(() => {
     const t = setTimeout(() => setShowTrust(true), 2600);
     const s = setTimeout(() => setShowScroll(true), 6250);
@@ -141,14 +187,14 @@ const DHero = () => {
   const accent = NS_ACCENTS[tw.accent] || NS_ACCENTS.yellow;
 
   return (
-    <section style={{
-      position: 'relative', minHeight: '100vh',
+    <section ref={sectionRef} style={{
+      position: 'relative', minHeight: minH,
       display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center',
       overflow: 'hidden', padding: '54px 32px 140px',
     }}>
       {/* Aurora shader — full-bleed, cursor reactive */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        <Aurora intensity={1.0} />
+        <Aurora intensity={1.05} />
       </div>
 
       {/* Soft vignette / readability layer */}
@@ -165,7 +211,7 @@ const DHero = () => {
         textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
         <div style={{
-          marginBottom: 36,
+          marginBottom: 30,
           animation: 'ns-brand-fade 900ms ease-out both',
           display: 'inline-flex', justifyContent: 'center',
           filter: 'drop-shadow(0 0 24px oklch(0.92 0.18 98 / 0.35))',
@@ -181,28 +227,29 @@ const DHero = () => {
           fontFamily: 'var(--ns-display)',
           fontSize: 'clamp(64px, 9vw, 140px)', lineHeight: 0.94, letterSpacing: -4,
           fontWeight: 500, margin: 0, color: 'var(--ns-white)',
+          filter: 'drop-shadow(0 2px 30px rgba(0,0,0,0.55))',
         }}>
           <WordKindle delay={0 + KINDLE_OFFSET} durMs={1268}
-            color={`linear-gradient(95deg, ${accent}, oklch(0.78 0.20 320))`}>Faster.</WordKindle>
+            color={`linear-gradient(95deg, oklch(0.92 0.20 200), oklch(0.88 0.24 320))`}>Faster.</WordKindle>
           <span style={{ color: 'oklch(0.92 0.01 95 / 0.35)' }}> </span>
           <WordKindle delay={810 + KINDLE_OFFSET} durMs={1268}
-            color="linear-gradient(95deg, oklch(0.78 0.20 320), oklch(0.82 0.18 200))">Fairer.</WordKindle>
+            color="linear-gradient(95deg, oklch(0.88 0.24 320), oklch(0.92 0.20 200))">Fairer.</WordKindle>
           <br />
-          <WordKindle delay={1620 + KINDLE_OFFSET} durMs={1394} color="oklch(0.92 0.18 98)">More accurate.</WordKindle>
+          <WordKindle delay={1620 + KINDLE_OFFSET} durMs={1394} color="oklch(0.96 0.20 98)">More accurate.</WordKindle>
         </h1>
 
         <p style={{
           fontFamily: 'var(--ns-body)', fontSize: 22, lineHeight: 1.45,
           color: 'oklch(0.97 0.01 95 / 0.88)',
-          margin: '38px 0 0', maxWidth: 640,
+          margin: '30px 0 0', maxWidth: 640,
           textWrap: 'pretty',
           textShadow: '0 1px 20px rgba(0,0,0,0.4)',
         }}>
           Online pre-hire assessments that identify genuine talent without bias — in <span style={{ color: 'var(--ns-white)', fontWeight: 500 }}>3 to 5 minutes</span>. Fully resilient to AI.
         </p>
 
-        <div style={{ display: 'flex', gap: 14, marginTop: 44, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a href="#contact" style={{
+        <div style={{ display: 'flex', gap: 14, marginTop: 35, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <a ref={ctaRef} href="#contact" style={{
             display: 'inline-flex', alignItems: 'center', gap: 12,
             padding: '18px 28px',
             background: 'var(--ns-yellow)', color: '#000',
@@ -227,30 +274,49 @@ const DHero = () => {
           </a>
         </div>
 
-        {/* Scroll cue — sits below the CTA. marginTop clamps down on shorter
-            viewports so the arrow never collides with the Trusted By marquee
-            pinned at bottom:10vh. Below ~700px tall, stops shrinking. */}
-        <div aria-hidden className="ns-scroll-cue" style={{
-          marginTop: 'clamp(8px, calc(100vh - 840px), 36px)',
-          opacity: showScroll ? 1 : 0,
-          transform: `translateY(${showScroll ? 0 : 8}px)`,
-          transition: 'opacity 600ms ease-out, transform 600ms cubic-bezier(.2,.8,.2,1)',
-          pointerEvents: 'none',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+      </div>
+
+      {/* Scroll cue — inline pill sitting midway between Trusted By and window bottom */}
+      <div aria-hidden className="ns-scroll-cue" style={{
+        position: 'absolute', left: 0, right: 0,
+        bottom: scrollBottom != null ? scrollBottom : '1.5vh',
+        zIndex: 2,
+        opacity: showScroll && scrollBottom != null ? 1 : 0,
+        transform: `translateY(${showScroll ? 0 : 6}px)`,
+        transition: 'opacity 600ms ease-out, transform 600ms cubic-bezier(.2,.8,.2,1)',
+        pointerEvents: 'none',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
+      }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 14,
+          fontFamily: 'var(--ns-mono)', fontSize: 12, letterSpacing: 3,
+          color: 'var(--ns-yellow)', textTransform: 'uppercase', fontWeight: 700,
         }}>
-          <span style={{
-            fontFamily: 'var(--ns-mono)', fontSize: 10, letterSpacing: 3,
-            color: 'var(--ns-yellow)', textTransform: 'uppercase', fontWeight: 700,
-          }}>SCROLL</span>
-          <svg width="22" height="28" viewBox="0 0 22 28" fill="none" style={{ animation: 'ns-scroll-bob 1.6s ease-in-out infinite' }}>
-            <path d="M11 2v22m0 0l-8-8m8 8l8-8" stroke="var(--ns-yellow)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <div style={{ display: 'inline-flex', gap: 4, animation: 'ns-scroll-bob 1.6s ease-in-out infinite' }}>
+            <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
+              <path d="M2 2l9 4 9-4" stroke="var(--ns-yellow)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
+            </svg>
+            <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
+              <path d="M2 2l9 4 9-4" stroke="var(--ns-yellow)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <span>SCROLL</span>
+          <div style={{ display: 'inline-flex', gap: 4, animation: 'ns-scroll-bob 1.6s ease-in-out infinite' }}>
+            <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
+              <path d="M2 2l9 4 9-4" stroke="var(--ns-yellow)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <svg width="22" height="8" viewBox="0 0 22 8" fill="none">
+              <path d="M2 2l9 4 9-4" stroke="var(--ns-yellow)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
+            </svg>
+          </div>
         </div>
       </div>
 
-      {/* Trusted by — absolutely pinned near the bottom of the hero. */}
-      <div style={{
-        position: 'absolute', left: 0, right: 0, bottom: '10vh', zIndex: 2,
+      {/* Trusted by — absolutely pinned; vertically centered between CTA and window bottom on tall viewports. */}
+      <div ref={trustRef} style={{
+        position: 'absolute', left: 0, right: 0,
+        bottom: trustBottom != null ? trustBottom : '5vh',
+        zIndex: 2,
         padding: 0,
         opacity: showTrust ? 1 : 0,
         transform: showTrust ? 'translateY(0)' : 'translateY(12px)',
@@ -267,11 +333,38 @@ const DHero = () => {
   );
 };
 
-// Single-row desktop marquee with many logos, wide masks.
+// Dual-row desktop marquee — two lines in opposite directions, larger chips.
 const DClientsMarquee = ({ clients }) => {
   const dots = ['oklch(0.82 0.18 200)', 'oklch(0.78 0.20 320)', 'oklch(0.92 0.18 98)', 'oklch(0.72 0.26 8)'];
-  const doubled = [...clients, ...clients, ...clients];
-  return (
+  // Split clients into two lines so each row has distinct logos.
+  const mid = Math.ceil(clients.length / 2);
+  const rowA = clients.slice(0, mid);
+  const rowB = clients.slice(mid);
+  const doubledA = [...rowA, ...rowA, ...rowA];
+  const doubledB = [...rowB, ...rowB, ...rowB];
+
+  const chip = (c, i) => (
+    <span key={`${c}-${i}`} style={{
+      display: 'inline-flex', alignItems: 'center', gap: 9,
+      padding: '9px 16px',
+      border: '1px solid oklch(0.85 0.01 95 / 0.14)',
+      background: 'oklch(0.06 0.01 280 / 0.55)',
+      backdropFilter: 'blur(8px)',
+      fontFamily: 'var(--ns-display)', fontSize: 13, fontWeight: 500,
+      letterSpacing: 0.3,
+      color: 'oklch(0.97 0.01 95 / 0.92)',
+      flexShrink: 0,
+    }}>
+      <span style={{
+        width: 5, height: 5, borderRadius: '50%',
+        background: dots[i % dots.length],
+        boxShadow: `0 0 8px ${dots[i % dots.length]}`,
+      }} />
+      {c}
+    </span>
+  );
+
+  const row = (items, reverse) => (
     <div
       onMouseEnter={e => e.currentTarget.classList.add('paused')}
       onMouseLeave={e => e.currentTarget.classList.remove('paused')}
@@ -282,31 +375,19 @@ const DClientsMarquee = ({ clients }) => {
       }}
     >
       <div className="ns-marquee-track" style={{
-        display: 'inline-flex', whiteSpace: 'nowrap', gap: 14,
-        animation: 'ns-marquee 80s linear infinite',
+        display: 'inline-flex', whiteSpace: 'nowrap', gap: 24,
+        animation: `ns-marquee 90s linear infinite ${reverse ? 'reverse' : ''}`,
         willChange: 'transform',
       }}>
-        {doubled.map((c, i) => (
-          <span key={`${c}-${i}`} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            padding: '9px 16px',
-            border: '1px solid oklch(0.85 0.01 95 / 0.14)',
-            background: 'oklch(0.06 0.01 280 / 0.55)',
-            backdropFilter: 'blur(8px)',
-            fontFamily: 'var(--ns-display)', fontSize: 14, fontWeight: 500,
-            letterSpacing: 0.3,
-            color: 'oklch(0.97 0.01 95 / 0.9)',
-            flexShrink: 0,
-          }}>
-            <span style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: dots[i % dots.length],
-              boxShadow: `0 0 10px ${dots[i % dots.length]}`,
-            }} />
-            {c}
-          </span>
-        ))}
+        {items.map(chip)}
       </div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      {row(doubledA, false)}
+      {row(doubledB, true)}
     </div>
   );
 };
