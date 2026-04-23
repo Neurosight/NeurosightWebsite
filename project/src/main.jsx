@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { NeurosightSite } from '../site.jsx';
-import { DNav, DHero } from '../desktop/site-shell.jsx';
+import { DNav, DHero, DBookCTA } from '../desktop/site-shell.jsx';
 import { DProblem, DInsight, DDiversity, DCompare } from '../desktop/sections-a.jsx';
 import { DResults, DCandidateExp, DProcess, DContact, DFooter } from '../desktop/sections-b.jsx';
 
@@ -269,6 +269,7 @@ const DesktopApp = ({ tweaks }) => {
   return (
     <div style={{ background: '#000', minHeight: '100vh', position: 'relative' }}>
       <DNav />
+      <DBookCTA />
       <DHero />
       {layout === 'A' ? (
         <>

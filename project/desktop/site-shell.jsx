@@ -126,6 +126,50 @@ export const DNav = () => {
 };
 
 // ═══════════════════════════════════════════════
+// Book a Demo — fixed pill pinned to the top-right corner.
+// Shrinks on first scroll (latches); arrow points downward.
+// ═══════════════════════════════════════════════
+export const DBookCTA = () => {
+  const tw = useTweaks();
+  const [shrunk, setShrunk] = React.useState(false);
+  React.useEffect(() => {
+    const onScroll = () => { if (window.scrollY > 140) setShrunk(true); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const label = tw.ctaLabel || 'BOOK A DEMO';
+
+  return (
+    <a href="#contact" style={{
+      position: 'fixed', top: 14, right: 28, zIndex: 102,
+      display: 'inline-flex', alignItems: 'center',
+      gap: shrunk ? 7 : 10,
+      padding: shrunk ? '8px 14px' : '12px 22px',
+      background: 'var(--ns-yellow)', color: '#000',
+      fontFamily: 'var(--ns-display)', fontWeight: 600,
+      fontSize: shrunk ? 11 : 13,
+      letterSpacing: shrunk ? 0.8 : 1,
+      textDecoration: 'none',
+      boxShadow: shrunk ? '0 0 28px oklch(0.92 0.18 98 / 0.35)' : '0 0 40px oklch(0.92 0.18 98 / 0.4)',
+      transition: 'padding 420ms cubic-bezier(.2,.8,.2,1), font-size 420ms cubic-bezier(.2,.8,.2,1), gap 420ms cubic-bezier(.2,.8,.2,1), letter-spacing 420ms cubic-bezier(.2,.8,.2,1), box-shadow 420ms, transform 200ms',
+    }}
+    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+    >
+      {label}
+      <svg width={shrunk ? 10 : 12} height={shrunk ? 12 : 14} viewBox="0 0 10 14" fill="none" style={{
+        flexShrink: 0,
+        transition: 'width 420ms cubic-bezier(.2,.8,.2,1), height 420ms cubic-bezier(.2,.8,.2,1)',
+      }}>
+        <path d="M5 1v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </a>
+  );
+};
+
+// ═══════════════════════════════════════════════
 // HERO — full-bleed aurora with centered type
 // ═══════════════════════════════════════════════
 export const DHero = () => {
@@ -134,7 +178,7 @@ export const DHero = () => {
   const [showTrust, setShowTrust] = React.useState(false);
   const [showScroll, setShowScroll] = React.useState(false);
   const [scrollTop, setScrollTop] = React.useState(null);
-  const ctaRef = React.useRef(null);
+  const anchorRef = React.useRef(null);
   const trustRef = React.useRef(null);
   const sectionRef = React.useRef(null);
   const [minH, setMinH] = React.useState('100vh');
@@ -142,33 +186,28 @@ export const DHero = () => {
   const [scrollBottom, setScrollBottom] = React.useState(null);
   React.useEffect(() => {
     const measure = () => {
-      const cta = ctaRef.current, trust = trustRef.current, sec = sectionRef.current;
-      if (!cta || !trust || !sec) return;
+      const anchor = anchorRef.current, trust = trustRef.current, sec = sectionRef.current;
+      if (!anchor || !trust || !sec) return;
       const secR = sec.getBoundingClientRect();
-      const ctaR = cta.getBoundingClientRect();
+      const anchorR = anchor.getBoundingClientRect();
       const trustH = trust.offsetHeight;
       const winH = window.innerHeight;
-      // CTA bottom measured RELATIVE to section top (scroll-independent).
-      // Then simulate what CTA bottom would be in viewport if section were pinned to top.
-      const ctaBottomInSec = ctaR.bottom - secR.top;
-      const ctaBottomAsIfAtTop = ctaBottomInSec;
-      const spaceBelowCta = winH - ctaBottomAsIfAtTop;
-      const idealGap = (spaceBelowCta - trustH) / 2; // gap above and below Trusted By
+      const anchorBottomInSec = anchorR.bottom - secR.top;
+      const spaceBelowAnchor = winH - anchorBottomInSec;
+      const idealGap = (spaceBelowAnchor - trustH) / 2;
       if (idealGap >= 18) {
         setMinH('100vh');
         setTrustBottom(idealGap);
         setScrollBottom(Math.max(2, idealGap / 2 - 6));
       } else {
-        // Not enough room: grow section so there's exactly 18px between CTA and Trust.
         const padBelow = 24;
-        const needed = ctaBottomInSec + 18 + trustH + padBelow;
+        const needed = anchorBottomInSec + 18 + trustH + padBelow;
         setMinH(`${Math.ceil(Math.max(winH, needed))}px`);
         setTrustBottom(padBelow);
         setScrollBottom(Math.max(4, padBelow / 2 - 8));
       }
-      // Scroll cue midway between CTA bottom and Trust top (section-relative).
-      const trustTop = ctaBottomInSec + Math.max(18, idealGap);
-      const mid = (ctaBottomInSec + trustTop) / 2;
+      const trustTop = anchorBottomInSec + Math.max(18, idealGap);
+      const mid = (anchorBottomInSec + trustTop) / 2;
       setScrollTop(mid);
     };
     measure();
@@ -241,7 +280,7 @@ export const DHero = () => {
           <WordKindle delay={1620 + KINDLE_OFFSET} durMs={1394} color="oklch(0.96 0.20 98)">More accurate.</WordKindle>
         </h1>
 
-        <p style={{
+        <p ref={anchorRef} style={{
           fontFamily: 'var(--ns-body)', fontSize: 'clamp(16px, min(1.7vw, 2.25vh), 22px)', lineHeight: 1.45,
           color: 'oklch(0.97 0.01 95 / 0.88)',
           margin: '30px 0 0', maxWidth: 640,
@@ -250,32 +289,6 @@ export const DHero = () => {
         }}>
           Online pre-hire assessments that identify genuine talent<br />without bias — in <span style={{ color: 'var(--ns-white)', fontWeight: 500 }}>3 to 5 minutes</span>. Fully resilient to AI.
         </p>
-
-        <div style={{ display: 'flex', gap: 14, marginTop: 35, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a ref={ctaRef} href="#contact" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 12,
-            padding: '18px 28px',
-            background: 'var(--ns-yellow)', color: '#000',
-            fontFamily: 'var(--ns-display)', fontWeight: 600, fontSize: 14,
-            letterSpacing: 1, textDecoration: 'none',
-            boxShadow: '0 0 60px oklch(0.92 0.18 98 / 0.5)',
-            transition: 'transform 180ms, box-shadow 180ms',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 6px 80px oklch(0.92 0.18 98 / 0.65)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 0 60px oklch(0.92 0.18 98 / 0.5)';
-          }}
-          >
-            {tw.ctaLabel || 'BOOK A DEMO'}
-            <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
-              <path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </a>
-        </div>
 
       </div>
 
