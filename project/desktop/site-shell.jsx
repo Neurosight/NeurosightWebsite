@@ -126,14 +126,14 @@ export const DNav = () => {
 };
 
 // ═══════════════════════════════════════════════
-// Book a Demo — fixed pill pinned to the top-right corner.
-// Shrinks on first scroll (latches); arrow points downward.
+// Book a Demo — compact pill pinned to the top-right corner,
+// top-aligned with the hamburger lines. Fades out on scroll.
 // ═══════════════════════════════════════════════
 export const DBookCTA = () => {
   const tw = useTweaks();
-  const [shrunk, setShrunk] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
   React.useEffect(() => {
-    const onScroll = () => { if (window.scrollY > 140) setShrunk(true); };
+    const onScroll = () => { if (window.scrollY > 140) setScrolled(true); };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -143,26 +143,24 @@ export const DBookCTA = () => {
 
   return (
     <a href="#contact" style={{
-      position: 'fixed', top: 14, right: 28, zIndex: 102,
-      display: 'inline-flex', alignItems: 'center',
-      gap: shrunk ? 7 : 10,
-      padding: shrunk ? '8px 14px' : '12px 22px',
+      position: 'fixed', top: 24, right: 28, zIndex: 102,
+      display: 'inline-flex', alignItems: 'center', gap: 7,
+      padding: '8px 14px',
       background: 'var(--ns-yellow)', color: '#000',
       fontFamily: 'var(--ns-display)', fontWeight: 600,
-      fontSize: shrunk ? 11 : 13,
-      letterSpacing: shrunk ? 0.8 : 1,
+      fontSize: 11, letterSpacing: 0.8,
       textDecoration: 'none',
-      boxShadow: shrunk ? '0 0 28px oklch(0.92 0.18 98 / 0.35)' : '0 0 40px oklch(0.92 0.18 98 / 0.4)',
-      transition: 'padding 420ms cubic-bezier(.2,.8,.2,1), font-size 420ms cubic-bezier(.2,.8,.2,1), gap 420ms cubic-bezier(.2,.8,.2,1), letter-spacing 420ms cubic-bezier(.2,.8,.2,1), box-shadow 420ms, transform 200ms',
+      boxShadow: '0 0 28px oklch(0.92 0.18 98 / 0.35)',
+      opacity: scrolled ? 0 : 1,
+      transform: scrolled ? 'translateY(-8px)' : 'translateY(0)',
+      pointerEvents: scrolled ? 'none' : 'auto',
+      transition: 'opacity 420ms ease, transform 420ms cubic-bezier(.2,.8,.2,1), box-shadow 200ms',
     }}
-    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 6px 48px oklch(0.92 0.18 98 / 0.55)'; }}
+    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 28px oklch(0.92 0.18 98 / 0.35)'; }}
     >
       {label}
-      <svg width={shrunk ? 10 : 12} height={shrunk ? 12 : 14} viewBox="0 0 10 14" fill="none" style={{
-        flexShrink: 0,
-        transition: 'width 420ms cubic-bezier(.2,.8,.2,1), height 420ms cubic-bezier(.2,.8,.2,1)',
-      }}>
+      <svg width="10" height="12" viewBox="0 0 10 14" fill="none" style={{ flexShrink: 0 }}>
         <path d="M5 1v12m0 0l4-4m-4 4l-4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </a>
