@@ -228,7 +228,7 @@ export const DHero = () => {
 
         <h1 style={{
           fontFamily: 'var(--ns-display)',
-          fontSize: 'clamp(64px, 9vw, 140px)', lineHeight: 0.94, letterSpacing: -4,
+          fontSize: 'clamp(56px, min(9vw, 13.5vh), 140px)', lineHeight: 0.94, letterSpacing: -4,
           fontWeight: 500, margin: 0, color: 'var(--ns-white)',
           filter: 'drop-shadow(0 2px 30px rgba(0,0,0,0.55))',
         }}>
